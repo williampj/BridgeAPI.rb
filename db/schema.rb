@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_07_233243) do
+ActiveRecord::Schema.define(version: 2020_11_09_184334) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,6 +25,7 @@ ActiveRecord::Schema.define(version: 2020_11_07_233243) do
     t.binary "payload", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["inbound_url"], name: "index_bridges_on_inbound_url", unique: true
   end
 
   create_table "environment_variables", force: :cascade do |t|
