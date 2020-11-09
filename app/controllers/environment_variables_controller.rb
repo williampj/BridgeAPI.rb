@@ -1,0 +1,2 @@
+class EnvironmentVariablesController < ApplicationController
+end
