@@ -7,4 +7,5 @@ Rails.application.routes.draw do
   put 'users', to: 'users#update'
   delete 'users', to: 'users#destroy'
   post 'login', to: 'sessions#create'
+  get 'events', to: 'events#index'
 end
