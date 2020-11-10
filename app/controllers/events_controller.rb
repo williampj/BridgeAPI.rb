@@ -1,7 +1,15 @@
 class EventsController < ApplicationController 
   def index 
-
-  end
+    # events = Event.all 
+    restricted_events = Event.all.map do |event| 
+      date = event.updated_at .... 
+      time = event.updated_at .... 
+      
+      { updated_at: event.updated_at, 
+        status_code: event.status_code 
+      }
+    end
+    
 end
 
 

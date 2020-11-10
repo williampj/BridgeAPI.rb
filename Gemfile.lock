@@ -57,12 +57,6 @@ GEM
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2, >= 2.2.2)
     bcrypt (3.1.16)
-    better_errors (2.7.1)
-      coderay (>= 1.0.0)
-      erubi (>= 1.0.0)
-      rack (>= 0.9.0)
-    binding_of_caller (0.8.0)
-      debug_inspector (>= 0.0.1)
     bootsnap (1.5.0)
       msgpack (~> 1.0)
     builder (3.2.4)
@@ -70,7 +64,6 @@ GEM
     coderay (1.1.2)
     concurrent-ruby (1.1.7)
     crass (1.0.6)
-    debug_inspector (0.0.3)
     diff-lcs (1.4.4)
     erubi (1.9.0)
     ffi (1.13.1)
@@ -180,8 +173,6 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
-  better_errors
-  binding_of_caller
   bootsnap (>= 1.4.2)
   byebug
   jbuilder (~> 2.7)
@@ -196,7 +187,7 @@ DEPENDENCIES
   tzinfo-data
 
 RUBY VERSION
-   ruby 2.7.1p83
+   ruby 2.6.6p146
 
 BUNDLED WITH
    2.1.4
