@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ImplementDatabase < ActiveRecord::Migration[6.0]
   def change
     create_table :bridges do |t|
@@ -27,7 +29,7 @@ class ImplementDatabase < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    
+
     create_table :events do |t|
       t.boolean :completed, null: false
       t.binary :data, null: false

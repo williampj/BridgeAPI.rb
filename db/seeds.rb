@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 bridge = Bridge.create(name: 'My First Bridge', payload: '', inbound_url: 'https://bridgeapi.dev/b1234/inbound', outbound_url: 'https://wowservice.io/new/23847923864', method: 'post', retries: 5, delay: 15)
 
 bridge.env_vars << EnvironmentVariable.create(key: 'database', value: 'a102345ij2')

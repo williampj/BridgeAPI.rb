@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe "Users", type: :request do
+RSpec.describe 'Users', type: :request do
   it 'saves itself' do
     # user = User.new(email: 'admin@dev.io', password_hash: BCrypt::Password::create('password'))
     # user.save
