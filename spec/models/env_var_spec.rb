@@ -1,14 +1,26 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EnvironmentVariable, type: :model do
-  it 'belongs to bridge' do
-    bridge = Bridge.create(name: 'My First Bridge', payload: '', inbound_url: 'https://bridgeapi.dev/b1234/inbound', outbound_url: 'https://wowservice.io/new/23847923864', method: 'post', retries: 5, delay: 15)
+  subject do
+    Bridge.create(
+      name: 'bridge',
+      payload: '',
+      inbound_url: Bridge.generate_inbound_url,
+      outbound_url: "doggoapi.io/#{Bridge.generate_inbound_url}",
+      method: 'POST',
+      retries: 5,
+      delay: 15
+    )
+  end
 
-    EnvironmentVariable1 = EnvironmentVariable.create(key: 'database', value: 'a102345ij2')
-    EnvironmentVariable2 = EnvironmentVariable.create(key: 'database_password', value: 'supersecretpasswordwow')
-    bridge.env_vars << EnvironmentVariable1
-    bridge.env_vars << EnvironmentVariable2
-    expect(EnvironmentVariable1.bridge).to eq bridge 
-    expect(EnvironmentVariable2.bridge).to eq bridge 
+  it 'belongs to bridge' do
+    environment_variable1 = EnvironmentVariable.create(key: 'database', value: 'a102345ij2')
+    environment_variable2 = EnvironmentVariable.create(key: 'database_password', value: 'supersecretpasswordwow')
+    subject.env_vars << environment_variable1
+    subject.env_vars << environment_variable2
+    expect(environment_variable1.bridge).to eq subject
+    expect(environment_variable2.bridge).to eq subject
   end
 end

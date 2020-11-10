@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './exceptions/jwt_expired_token'
 
 class JsonWebToken

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 class EventsController < ApplicationController
   before_action :authorize_request
   # Needs to find all events based on bridge_id or event_id
@@ -43,3 +44,9 @@ end
 #   t.datetime "updated_at", precision: 6, null: false
 #   t.index ["bridge_id"], name: "index_events_on_bridge_id"
 # end
+=======
+# frozen_string_literal: true
+
+class EventsController < ApplicationController
+end
+>>>>>>> 11d80c27fa5104bb4322e4fb4e3883f0e02bcfa1
