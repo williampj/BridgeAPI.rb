@@ -1,0 +1,71 @@
+env:
+  RUBY_VERSION: 2.6
+  POSTGRES_USER: ruby
+  POSTGRES_PASSWORD: ruby
+  POSTGRES_DB: bridgeapi_rb_test
+
+name: Build
+
+on:
+  pull_request:
+    branches:
+      - 'master'
+  schedule:
+    - cron: '0 21 * * *'
+
+jobs:
+  rubocop-test:
+    name: Rubocop
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+      - name: Install Rubocop
+        run: gem install rubocop
+      - name: Check code
+        run: rubocop
+
+  rspec-test:
+    name: Test
+    runs-on: ubuntu-18.04
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        ports:
+        - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Install PostgreSQL 11
+        run: |
+          sudo apt update
+          sudo bash -c "echo deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main >> /etc/apt/sources.list.d/pgdg.list"
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get -yqq install libpq-dev postgresql-client-11
+      - uses: actions/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundler install
+      - name: Create database
+        run: |
+          bundler exec rails db:create RAILS_ENV=test
+          bundler exec rails db:migrate RAILS_ENV=test
+      - name: Run tests
+        run: bundle exec rspec
+      # - name: Upload coverage results    
+      #   uses: actions/upload-artifact@master
+      #   if: always()
+      #   with:
+      #     name: coverage-report
+      #     path: coverage
