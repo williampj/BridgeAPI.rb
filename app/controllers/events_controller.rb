@@ -3,9 +3,7 @@ class EventsController < ApplicationController
   # Needs to find all events based on bridge_id or event_id
   # Needs to return id for each event as well
   def index
-    binding.pry
-    events = @current_user.Event.all
-    binding.pry
+    events = @current_user.bridges 
     events.map do |event|
       updated_at = String(event.updated_at)
       date = date_format(updated_at.split(' ')[1])
@@ -15,10 +13,10 @@ class EventsController < ApplicationController
         date: date,
         status_code: event.status_code }
     end
-    binding.pry
   end
 
-  def show; end
+  def show 
+  end
 
   private
 

@@ -6,6 +6,7 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: true,
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :notifications, inclusion: { in: [true, false] }
+  has_many :bridges, dependent: :destroy
 
   def safe_json
     { email: email, notifications: notifications }
