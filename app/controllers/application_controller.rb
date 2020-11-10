@@ -3,8 +3,8 @@
 class ApplicationController < ActionController::API
   attr_accessor :current_user
 
-  TOKEN_HEADER = 'BRIDGE-JWT'.freeze 
-  USER_ERROR_MSG = 'ERROR: Could not find user with decoded JWT. This should not happen.'.freeze
+  TOKEN_HEADER = 'BRIDGE-JWT'
+  USER_ERROR_MSG = 'ERROR: Could not find user with decoded JWT. This should not happen.'
 
   # Set this method as a before_action for routes you want
   # to protect with JWT authentication. Your route action

@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class EventsController < ApplicationController
   before_action :authorize_request
   # Needs to find all events based on bridge_id or event_id
   # Needs to return id for each event as well
   def index
-    events = @current_user.bridges 
+    events = @current_user.bridges
     events.map do |event|
       updated_at = String(event.updated_at)
       date = date_format(updated_at.split(' ')[1])
@@ -15,8 +17,7 @@ class EventsController < ApplicationController
     end
   end
 
-  def show 
-  end
+  # def show; end
 
   private
 
@@ -27,17 +28,3 @@ class EventsController < ApplicationController
     "#{year}-#{month}-#{day}"
   end
 end
-
-# SCHEMA
-# create_table "events", force: :cascade do |t|
-#   t.boolean "completed", null: false
-#   t.binary "data", null: false
-#   t.string "inbound_url", null: false
-#   t.string "outbound_url", null: false
-#   t.integer "status_code", null: false
-#   t.datetime "completed_at"
-#   t.bigint "bridge_id", null: false
-#   t.datetime "created_at", precision: 6, null: false
-#   t.datetime "updated_at", precision: 6, null: false
-#   t.index ["bridge_id"], name: "index_events_on_bridge_id"
-# end
