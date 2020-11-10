@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   attr_accessor :current_user
+
   TOKEN_HEADER = 'BRIDGE-JWT'.freeze
   USER_ERROR_MSG = 'ERROR: Could not find user with decoded JWT. This should not happen.'.freeze
 
