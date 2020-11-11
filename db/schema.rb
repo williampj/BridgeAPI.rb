@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_11_192930) do
+ActiveRecord::Schema.define(version: 2020_11_11_195349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(version: 2020_11_11_192930) do
     t.jsonb "data", null: false
     t.string "inbound_url", null: false
     t.string "outbound_url", null: false
-    t.integer "status_code", null: false
+    t.integer "status_code"
     t.datetime "completed_at"
     t.bigint "bridge_id", null: false
     t.datetime "created_at", precision: 6, null: false
