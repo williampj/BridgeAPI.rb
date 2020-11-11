@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_11_175121) do
+ActiveRecord::Schema.define(version: 2020_11_11_192930) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,7 +40,7 @@ ActiveRecord::Schema.define(version: 2020_11_11_175121) do
   end
 
   create_table "events", force: :cascade do |t|
-    t.boolean "completed", null: false
+    t.boolean "completed", default: false, null: false
     t.jsonb "data", null: false
     t.string "inbound_url", null: false
     t.string "outbound_url", null: false
