@@ -24,7 +24,7 @@ class UsersController < ApplicationController
 
   def update
     if @current_user.update(user_params)
-      render json: @current_user.safe_json, status: 204 # No Content
+      render json: @current_user.safe_json, status: 200 # OK
     else
       render json: {}, status: 400 # Bad Request
     end
