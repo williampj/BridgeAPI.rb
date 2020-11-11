@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_10_220329) do
+ActiveRecord::Schema.define(version: 2020_11_11_175121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,7 +22,7 @@ ActiveRecord::Schema.define(version: 2020_11_10_220329) do
     t.string "method", null: false
     t.integer "retries", null: false
     t.integer "delay", null: false
-    t.binary "payload", null: false
+    t.jsonb "payload", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id", null: false
@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 2020_11_10_220329) do
 
   create_table "events", force: :cascade do |t|
     t.boolean "completed", null: false
-    t.binary "data", null: false
+    t.jsonb "data", null: false
     t.string "inbound_url", null: false
     t.string "outbound_url", null: false
     t.integer "status_code", null: false
