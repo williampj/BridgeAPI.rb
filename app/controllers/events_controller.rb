@@ -39,6 +39,11 @@ class EventsController < ApplicationController
     render json: event, status: 200 # OK
   end
 
+  def destroy
+    event = Event.find(event_params[:id])
+    event.destroy
+  end
+
   # receives bridge id + data
   def create
     bridge = Bridge.find(event_params[:id])
