@@ -72,4 +72,7 @@ ActiveRecord::Schema.define(version: 2020_11_11_195349) do
   end
 
   add_foreign_key "bridges", "users"
+  add_foreign_key "environment_variables", "bridges"
+  add_foreign_key "events", "bridges"
+  add_foreign_key "headers", "bridges"
 end

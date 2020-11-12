@@ -13,24 +13,26 @@ class EventWorker
       'time' => DateTime.now.utc.to_s.split(' ')[1],
       'content_length' => content_length
     }
-
     @event.data['outbound'].push({ 'request' => request, 'response' => {} })
   end
 
   def save_response(response)
-    event_response = @event.data['outbound'].last['response']
-    event_response['payload'] = JSON.parse(response.body)
-    # #=> {"ip" => "153.33.111.24"}
-    event_response['message'] = response.message
-    # #=> "OK"
-    event_response['status_code'] = @event.status_code = response.code
-    # #=> "200"
+    response_object = {
+      'date' => DateTime.now.utc.to_s.split(' ').first,
+      'time' => DateTime.now.utc.to_s.split(' ')[1],
+      'status_code' => response.code,
+      'message' => response.message,
+      'size' => response.size,
+      'payload' => JSON.parse(response.body)
+    }
+    @event.data['outbound'].last['response'] = response_object
+    @event.status_code = response.code
 
     if @event.status_code < 300
       @event.completed = true
       @event.completed_at = Time.now.utc
     end
-    @event.save
+    @event.save unless @test
   end
 
   def make_http_uri(uri)
@@ -40,9 +42,10 @@ class EventWorker
     "#{SCHEME}#{minus_scheme}"
   end
 
-  def perform(event_id)
-    @event = Event.find(event_id)
-    bridge = Bridge.find(@event.bridge_id)
+  def perform(event, bridge, test = false)
+    @test = test
+    @event = event
+    # bridge = Bridge.find(@event.bridge_id)
     method = bridge.method.capitalize
 
     uri = URI(make_http_uri(bridge.outbound_url))
@@ -50,15 +53,15 @@ class EventWorker
     http.use_ssl = (uri.scheme == 'https')
 
     req = "Net::HTTP::#{method}".constantize.new(uri, 'Content-Type' => 'application/json')
-    request_body = bridge.payload # HOW TO DYNAMICALLY GENERATE THIS?
+    request_body = bridge.payload # Done on the frontend / bridge controller?
     req.body = request_body.to_json
     save_request(request_body, req.body.length)
 
     response = http.request(req)
     save_response(response)
 
-    # binding.pry
-
+    # Send back test event from here?
+     
     # payload = {
     #   test: {},
     #   production: {}

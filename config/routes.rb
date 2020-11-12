@@ -9,4 +9,5 @@ Rails.application.routes.draw do
   post 'login', to: 'sessions#create'
   post 'events', to: 'events#create'
   get 'events', to: 'events#index'
+  get 'events/:id', to: 'events#show'
 end
