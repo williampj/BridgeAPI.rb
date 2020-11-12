@@ -25,7 +25,14 @@ class EventsController < ApplicationController
   def create
     bridge = Bridge.find(event_params[:id])
     payload = JSON.parse(request.body.read)
-    data = { inbound: payload, outbound: [] }
+    data = { 'inbound' => {
+      'payload' => payload,
+      'date' => DateTime.now.utc.to_s.split(' ').first,
+      'time' => DateTime.now.utc.to_s.split(' ')[1],
+      'ip' => request.ip,
+      'content_length' => request.content_length
+    },
+             outbound: [] }
     event = Event.new(
       data: data,
       bridge_id: bridge.id,
@@ -34,7 +41,7 @@ class EventsController < ApplicationController
     )
     event.save!
     EventWorker.new.perform(event.id)
-    # render json: {}, status: 201 # Created
+    render json: event, status: 201 # Created
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'a bridge by that id was not found' }, status: 400
   rescue ActiveRecord::RecordInvalid
