@@ -61,7 +61,7 @@ class EventWorker
     save_response(response)
 
     # Send back test event from here?
-     
+
     # payload = {
     #   test: {},
     #   production: {}
