@@ -10,19 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_11_192930) do
+ActiveRecord::Schema.define(version: 2020_11_12_094842) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "bridges", force: :cascade do |t|
-    t.string "name", null: false
+    t.string "title", null: false
     t.string "inbound_url", null: false
     t.string "outbound_url", null: false
     t.string "method", null: false
     t.integer "retries", null: false
     t.integer "delay", null: false
-    t.jsonb "payload", null: false
+    t.jsonb "data", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id", null: false
@@ -72,4 +72,7 @@ ActiveRecord::Schema.define(version: 2020_11_11_192930) do
   end
 
   add_foreign_key "bridges", "users"
+  add_foreign_key "environment_variables", "bridges"
+  add_foreign_key "events", "bridges"
+  add_foreign_key "headers", "bridges"
 end
