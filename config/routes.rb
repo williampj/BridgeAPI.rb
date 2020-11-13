@@ -2,6 +2,7 @@
 
 Rails.application.routes.draw do
   resources :bridges
+  resources :headers, :environment_variables, only: :destroy
 
   post 'users', to: 'users#create'
   get 'users', to: 'users#show'
