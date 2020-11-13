@@ -8,11 +8,11 @@ user = User.create(email: 'admin@bridge.io', password: 'password', notifications
 user2 = User.create(email: 'tester@bridge.io', password: 'password', notifications: false)
 
 bridge = Bridge.create(
-  user: user,
+  user_id: user.id,
   name: 'My First Bridge', 
-  payload: '', 
-  inbound_url: Bridge.generate_inbound_url, 
-  outbound_url: test_url, 
+  payload: "{\"FirstName\":\"Lee\",\"LastName\":\"Oswald\",\"UserName\":\"GrassyKnoll\",\"Password\":{\"nested\":\"magic bullet\"},\"Email\":\"kgb63@yandex.ru\"}", 
+  inbound_url: test_url, 
+  outbound_url: 'ip.jsontest.com',
   method: 'POST', 
   retries: 5, 
   delay: 15
@@ -24,9 +24,9 @@ bridge.headers << Header.create(key: 'X_API_KEY', value: 'ooosecrets')
 bridge.headers << Header.create(key: 'Authentication', value: 'Bearer &&&&&&&&&&&&&&&&')
 
 bridge2 = Bridge.create(
-  user: user2,
+  user_id: user2.id,
   name: 'My Second Bridge', 
-  payload: '', 
+  payload: "{\"FirstName\":\"Booths\",\"LastName\":\"John\",\"UserName\":\"FordTheatre\",\"Password\":{\"nested\":\"sic temper tyrannis\"},\"Email\":\"mail@mail.com\"}", 
   inbound_url: Bridge.generate_inbound_url, 
   outbound_url: test_url, 
   method: 'PATCH', 

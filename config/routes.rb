@@ -1,3 +1,4 @@
+require 'sidekiq/web'
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
@@ -10,4 +11,6 @@ Rails.application.routes.draw do
   post 'events', to: 'events#create'
   get 'events', to: 'events#index'
   get 'events/:id', to: 'events#show'
+  delete 'routes', to: 'events#destroy'
+  mount Sidekiq::Web => '/sidekiq'
 end

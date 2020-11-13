@@ -1,24 +1,22 @@
 # frozen_string_literal: true
 
+def date_format(time)
+  year = time.split('-')[0]
+  month = time.split('-')[1]
+  day = time.split('-')[2]
+  "#{year}-#{month}-#{day}"
+end
+
 class EventsController < ApplicationController
   # before_action :authorize_request
 
-  def date_format(time)
-    year = time.split('-')[0]
-    month = time.split('-')[1]
-    day = time.split('-')[2]
-    "#{year}-#{month}-#{day}"
-  end
-
-  # Needs to find all events based on bridge_id or event_id
-  # Needs to return id for each event as well
   def index
     # binding.pry
-    if params[:event_id]
-      event = Event.find(params[:event_id])
+    if event_params[:event_id]
+      event = Event.find(event_params[:event_id])
       events = Bridge.find(event.bridge_id).events
-    elsif params[:bridge_id]
-      events = Bridge.find(params[:bridge_id]).events
+    elsif event_params[:bridge_id]
+      events = Bridge.find(event_params[:bridge_id]).events
     else raise ActiveRecord::RecordNotFound
     end
 
@@ -35,7 +33,7 @@ class EventsController < ApplicationController
   end
 
   def show
-    event = Event.find(params[:id])
+    event = Event.find(event_params[:id])
     render json: event, status: 200 # OK
   end
 
@@ -44,9 +42,9 @@ class EventsController < ApplicationController
     event.destroy
   end
 
-  # receives bridge id + data
   def create
-    bridge = Bridge.find(event_params[:id])
+    bridge = Bridge.find(create_event_params[:id])
+    test_mode = create_event_params[:test]
     payload = JSON.parse(request.body.read)
     data = { 'inbound' => {
       'payload' => payload,
@@ -57,15 +55,27 @@ class EventsController < ApplicationController
     },
              'outbound' => [] }
     event = Event.new(
-      data: data,
+      data: data.to_json,
       bridge_id: bridge.id,
+      test: test_mode,
       inbound_url: bridge.inbound_url,
       outbound_url: bridge.outbound_url
     )
-    event.save! unless event_params[:test]
-    EventWorker.new.perform(event, bridge, event_params[:test])
+    event.save!
+    # EventWorker.new.perform(event.id)
+    EventWorker.perform_async(event.id)
+    # (bridge.retries + 1).times do
+    #   if bridge.delay
+    #     seconds = bridge.delay * 60
+    #     EventWorker.perform_in(seconds, event.id, event_params[:test_mode])
+    #     sleep seconds + 5
+    #     break if event.completed
+    #   else
+    #     EventWorker.perform_async(event.id, event_params[:test_mode])
+    #   end
+    # end
 
-    render json: event, status: 201 # Created
+    render json: {}, status: 201 # Created
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'a bridge by that id was not found' }, status: 400
   rescue ActiveRecord::RecordInvalid
@@ -76,8 +86,12 @@ class EventsController < ApplicationController
 
   private
 
+  def create_event_params
+    params.require(:bridge).permit(:id, :test)
+  end
+
   def event_params
-    params.permit(:id, :bridge_id, :event_id, :test, :inbound_url, :outbound_url)
+    params.permit(:id, :bridge_id, :event_id, :test)
   end
 end
 
