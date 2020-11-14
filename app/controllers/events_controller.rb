@@ -11,7 +11,6 @@ class EventsController < ApplicationController
   # before_action :authorize_request
 
   def index
-    # binding.pry
     if event_params[:event_id]
       event = Event.find(event_params[:event_id])
       events = Bridge.find(event.bridge_id).events
@@ -62,20 +61,9 @@ class EventsController < ApplicationController
       outbound_url: bridge.outbound_url
     )
     event.save!
-    # EventWorker.new.perform(event.id)
     EventWorker.perform_async(event.id)
-    # (bridge.retries + 1).times do
-    #   if bridge.delay
-    #     seconds = bridge.delay * 60
-    #     EventWorker.perform_in(seconds, event.id, event_params[:test_mode])
-    #     sleep seconds + 5
-    #     break if event.completed
-    #   else
-    #     EventWorker.perform_async(event.id, event_params[:test_mode])
-    #   end
-    # end
 
-    render json: {}, status: 201 # Created
+    render json: {}, status: 202 # Accepted (asynchronous processing)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'a bridge by that id was not found' }, status: 400
   rescue ActiveRecord::RecordInvalid
@@ -94,40 +82,3 @@ class EventsController < ApplicationController
     params.permit(:id, :bridge_id, :event_id, :test)
   end
 end
-
-# Step 2
-# payload:
-# {
-#   test: 'user entered string from editor',
-#   production: 'user entered string from editor'
-# }
-
-# Step 3
-#
-
-# NB: Need to run `bundle exec sidekiq` in separate terminal
-# localhost:3000/sidekiq to monitor sidekiq while running
-# after turning it on
-# => mount Sidekiq::Web => '/sidekiq
-
-# events_data: {
-#   inbound: {payload},
-#   outbound: [ # 0 - 5
-#     { request: {payload},
-#       response: {payload}
-#     },
-#     { request: {payload},
-#       response: {payload}
-#     },
-#     { request: {payload},
-#       response: {payload}
-#     },
-#     { request: {payload},
-#       response: {payload}
-#     },
-#     { request: {payload},
-#       response: {payload}
-#     }
-#   ]
-
-# }
