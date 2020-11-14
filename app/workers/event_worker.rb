@@ -45,7 +45,7 @@ def save_response(event, resp)
     status_code: resp.code,
     message: resp.message,
     size: resp.size,
-    payload: payload 
+    payload: payload
   }
   event_data = JSON.parse(event.data)
   event_data['outbound'].last['response'] = response
@@ -89,7 +89,7 @@ class EventWorker
     http.use_ssl = (uri.scheme == 'https')
     req = "Net::HTTP::#{method}".constantize.new(uri, 'Content-Type' => 'application/json')
     req.body = bridge.payload.to_json
-    
+
     begin
       current_attempts += 1
       save_request(event, req.length, bridge.payload)
@@ -97,8 +97,8 @@ class EventWorker
       save_response(event, response)
     rescue *HTTP_ERRORS, Sidekiq::LargeStatusCode => e
       save_http_error(event, e) if HTTP_ERRORS.include?(e.class)
-      if current_attempts <= bridge.retries
-        sleep 1 # DEVELOPMENT 
+      if current_attempts <= retries
+        sleep 1 # DEVELOPMENT
         # sleep bridge.delay * 60 # PRODUCTION
         retry
       end

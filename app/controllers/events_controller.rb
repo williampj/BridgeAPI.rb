@@ -8,7 +8,7 @@ def date_format(time)
 end
 
 class EventsController < ApplicationController
-  # before_action :authorize_request
+  before_action :authorize_request
 
   def index
     if event_params[:event_id]
@@ -28,21 +28,21 @@ class EventsController < ApplicationController
         date: date,
         status_code: event.status_code }
     end
-    render json: safe_events, status: 200 # OK
+    render json: safe_events, status: 200
   end
 
   def show
-    event = Event.find(event_params[:id])
-    render json: event, status: 200 # OK
+    event = Event.find(event_params[:event_id])
+    render json: event, status: 200
   end
 
   def destroy
-    event = Event.find(event_params[:id])
+    event = Event.find(event_params[:event_id])
     event.destroy
   end
 
   def create
-    bridge = Bridge.find(create_event_params[:id])
+    bridge = Bridge.find(event_params[:bridge_id])
     test_mode = create_event_params[:test]
     payload = JSON.parse(request.body.read)
     data = { 'inbound' => {
@@ -74,11 +74,7 @@ class EventsController < ApplicationController
 
   private
 
-  def create_event_params
-    params.require(:bridge).permit(:id, :test)
-  end
-
   def event_params
-    params.permit(:id, :bridge_id, :event_id, :test)
+    params.permit(:bridge_id, :event_id)
   end
 end
