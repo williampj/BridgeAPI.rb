@@ -98,7 +98,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   it 'update action returns updated user and 200 status if valid password update' do
-    params = { user: { password: 'extrasuperdupersecure' } }
+    params = { user: { password: 'extrasuperdupersecure' }, current_password: 'secret' }
     put '/user', params: params, headers: authenticated_token
 
     expect(response).to have_http_status 200
