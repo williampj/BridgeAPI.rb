@@ -3,11 +3,10 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
-  post 'users', to: 'users#create'
-  get 'users', to: 'users#show'
-  patch 'users', to: 'users#update'
-  put 'users', to: 'users#update'
-  delete 'users', to: 'users#destroy'
+  resource :user, except: %i[new edit]
+  resources :bridges
+  resources :headers, :environment_variables, only: :destroy
+
   post 'login', to: 'sessions#create'
   post 'events', to: 'events#create'
   get 'events', to: 'events#index'

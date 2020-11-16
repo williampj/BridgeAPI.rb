@@ -27,4 +27,8 @@ class ApplicationController < ActionController::API
   rescue JWT::ExpiredWebToken
     render json: { error: 'You need to log in again' }, status: 401 # unauthorized
   end
+
+  def render_message(message: {}, status: :ok)
+    render json: message, status: status
+  end
 end

@@ -3,16 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe Event, type: :model do
+  before do
+    create_user
+  end
+
   subject do
-    Bridge.create(
-      name: 'bridge',
-      payload: '',
-      inbound_url: Bridge.generate_inbound_url,
-      outbound_url: "doggoapi.io/#{Bridge.generate_inbound_url}",
-      method: 'POST',
-      retries: 5,
-      delay: 15
-    )
+    create_bridge
   end
 
   it 'belongs to bridge' do

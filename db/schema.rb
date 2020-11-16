@@ -10,19 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2020_11_13_001336) do
+=======
+ActiveRecord::Schema.define(version: 2020_11_12_094842) do
+>>>>>>> aac310c313a7cfb304f513a700375599ede024e3
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "bridges", force: :cascade do |t|
-    t.string "name", null: false
+    t.string "title", null: false
     t.string "inbound_url", null: false
     t.string "outbound_url", null: false
     t.string "method", null: false
     t.integer "retries", null: false
     t.integer "delay", null: false
-    t.jsonb "payload", null: false
+    t.jsonb "data", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id", null: false
