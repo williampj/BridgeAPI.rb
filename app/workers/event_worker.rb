@@ -104,13 +104,10 @@ class EventWorker
       current_attempts += 1
       save_request(event, req.length, payload)
       response = http.request(req)
-      binding.pry
       save_response(event, response)
     rescue *HTTP_ERRORS, Sidekiq::LargeStatusCode => e
-      binding.pry
       save_http_error(event, e) if HTTP_ERRORS.include?(e.class)
       if current_attempts <= retries
-        binding.pry
         sleep 1 # DEVELOPMENT
         # sleep bridge.delay * 60 # PRODUCTION
         retry
