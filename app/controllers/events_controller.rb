@@ -8,7 +8,7 @@ def date_format(time)
 end
 
 class EventsController < ApplicationController
-  before_action :authorize_request
+  # before_action :authorize_request
 
   def index
     if event_params[:event_id]
@@ -43,7 +43,7 @@ class EventsController < ApplicationController
 
   def create
     bridge = Bridge.find(event_params[:bridge_id])
-    test_mode = create_event_params[:test]
+    test_mode = event_params[:test]
     payload = JSON.parse(request.body.read)
     data = { 'inbound' => {
       'payload' => payload,
@@ -62,7 +62,6 @@ class EventsController < ApplicationController
     )
     event.save!
     EventWorker.perform_async(event.id)
-
     render json: {}, status: 202 # Accepted (asynchronous processing)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'a bridge by that id was not found' }, status: 400
@@ -75,6 +74,6 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.permit(:bridge_id, :event_id)
+    params.permit(:bridge_id, :event_id, :test)
   end
 end
