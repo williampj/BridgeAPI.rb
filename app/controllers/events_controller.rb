@@ -61,6 +61,7 @@ class EventsController < ApplicationController
       outbound_url: bridge.outbound_url
     )
     event.save!
+    binding.pry
     EventWorker.perform_async(event.id)
     render json: {}, status: 202 # Accepted (asynchronous processing)
   rescue ActiveRecord::RecordNotFound

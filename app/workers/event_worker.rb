@@ -82,12 +82,11 @@ class EventWorker
 
   def perform(event_id)
     event = Event.find(event_id)
-    # payload = JSON.parse(event.data)['inbound']['payload']
     bridge = Bridge.find(event.bridge_id)
     payload = if event.test
-                JSON.parse(bridge.data)['test-payload']
+                JSON.parse(bridge.data['test_payload'])
               else
-                JSON.parse(bridge.data)['payload']
+                JSON.parse(bridge.data['payload'])
               end
     method = bridge.method.capitalize
     retries = bridge.retries
@@ -99,9 +98,7 @@ class EventWorker
     http.use_ssl = (uri.scheme == 'https')
     req = "Net::HTTP::#{method}".constantize.new(uri, 'Content-Type' => 'application/json')
     set_headers(req, bridge)
-    # binding.pry
     req.body = payload.to_json
-    binding.pry
 
     begin
       current_attempts += 1
@@ -110,8 +107,10 @@ class EventWorker
       binding.pry
       save_response(event, response)
     rescue *HTTP_ERRORS, Sidekiq::LargeStatusCode => e
+      binding.pry
       save_http_error(event, e) if HTTP_ERRORS.include?(e.class)
       if current_attempts <= retries
+        binding.pry
         sleep 1 # DEVELOPMENT
         # sleep bridge.delay * 60 # PRODUCTION
         retry
