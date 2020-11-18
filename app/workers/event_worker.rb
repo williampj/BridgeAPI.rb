@@ -139,6 +139,5 @@ class EventWorker
       sleep bridge.delay * 60
     end
     save_event(event)
-    binding.pry
   end
 end

@@ -40,12 +40,43 @@ module MainHelper
   end
 
   def event_data
-    @data = { 'inbound' => { 'payload' => { 'FirstName' => 'Lee', 'LastName' => 'Oswald', 'UserName' => 'GrassyKnoll', 'Password' => { 'nested' => 'magic bullet' }, 'Email' => 'kgb63@yandex.ru' },
-                             'date' => '2020-11-17',
-                             'time' => '03:23:35',
-                             'ip' => '::1',
-                             'content_length' => 152 },
-              'outbound' => [{ 'request' => { 'payload' => { 'FirstName' => 'Lee', 'LastName' => 'Oswald', 'UserName' => 'GrassyKnoll', 'Password' => { 'nested' => 'magic bullet' }, 'Email' => 'kgb63@yandex.ru' }, 'date' => '2020-11-17', 'time' => '03:23:35', 'content_length' => 7 }, 'response' => { 'date' => '2020-11-17', 'time' => '03:23:35', 'status_code' => '200', 'message' => 'OK', 'size' => 7, 'payload' => { 'ip' => '153.33.111.24' } } }] }.to_json
+    @data = {
+      'inbound' => {
+        'payload' => {
+          'FirstName' => 'Lee',
+          'LastName' => 'Oswald',
+          'UserName' => 'GrassyKnoll',
+          'Password' => { 'nested' => 'magic bullet' },
+          'Email' => 'kgb63@yandex.ru'
+        },
+        'date' => '2020-11-17',
+        'time' => '03:23:35',
+        'ip' => '::1',
+        'content_length' => 152
+      },
+      'outbound' => [
+        { 'request' => {
+          'payload' => {
+            'FirstName' => 'Lee',
+            'LastName' => 'Oswald',
+            'UserName' => 'GrassyKnoll',
+            'Password' => { 'nested' => 'magic bullet' },
+            'Email' => 'kgb63@yandex.ru'
+          },
+          'date' => '2020-11-17',
+          'time' => '03:23:35',
+          'content_length' => 7
+        },
+          'response' => {
+            'date' => '2020-11-17',
+            'time' => '03:23:35',
+            'status_code' => '200',
+            'message' => 'OK',
+            'size' => 7,
+            'payload' => { 'ip' => '153.33.111.24' }
+          } }
+      ]
+    }.to_json
     @data
   end
 
