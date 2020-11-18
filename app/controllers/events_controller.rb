@@ -29,10 +29,7 @@ class EventsController < ApplicationController
   end
 
   def create
-    bridge = Bridge.find(event_params[:bridge_id])
-    data = create_data_object
-    event = create_event_object(data, bridge)
-
+    event = create_event_object(create_data_object, find_bridge)
     event.save!
     EventWorker.perform_async(event.id)
     render json: {}, status: 202 # Accepted (asynchronous processing)
@@ -50,18 +47,12 @@ class EventsController < ApplicationController
     params.permit(:id, :bridge_id, :event_id, :test)
   end
 
-  def date_format(time)
-    year = time.split('-')[0]
-    month = time.split('-')[1]
-    day = time.split('-')[2]
-    "#{year}-#{month}-#{day}"
-  end
-
   def create_data_object
+    datetime = DateTime.now.utc.to_s.split(' ')
     { 'inbound' => {
       'payload' => JSON.parse(request.body.read),
-      'date' => DateTime.now.utc.to_s.split(' ').first,
-      'time' => DateTime.now.utc.to_s.split(' ')[1],
+      'date' => datetime.first,
+      'time' => datetime[1],
       'ip' => request.ip,
       'content_length' => request.content_length
     },
@@ -72,22 +63,12 @@ class EventsController < ApplicationController
     Event.new(
       data: data.to_json,
       bridge_id: bridge.id,
-      test: event_params[:test] || false,
-      inbound_url: bridge.inbound_url,
-      outbound_url: bridge.outbound_url
+      test: event_params[:test] || false
     )
   end
 
   def create_sidebar_events(events)
-    events.map do |event|
-      updated_at = String(event.updated_at)
-      time = date_format(updated_at.split(' ')[1])
-      date = updated_at.split(' ')[0]
-      { id: event.id,
-        time: time.slice(0..-3),
-        date: date,
-        status_code: event.status_code }
-    end
+    events.map(&:sidebar_format).sort_by { |event| event[:id] }.reverse
   end
 
   def retrieve_events
@@ -98,5 +79,9 @@ class EventsController < ApplicationController
     else
       raise ActiveRecord::NotNullViolation
     end
+  end
+
+  def find_bridge
+    Bridge.find(event_params[:bridge_id])
   end
 end

@@ -31,4 +31,12 @@ module MainHelper
       **bridge_hash
     )
   end
+
+  def event_data; end
+
+  def create_event
+    @event = Event.create({ bridge_id: 1, data: event_data })
+  end
+
+  def destroy_event; end
 end
