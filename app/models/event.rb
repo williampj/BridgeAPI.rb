@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 BOOLEAN = [true, false].freeze
-VALID_CODES = [100..599].freeze
 
 class Event < ApplicationRecord
-  before_create :set_urls
+  before_validation :set_urls
   validates :test, inclusion: { in: BOOLEAN, message: '"test" field must be true or false' }
-  validates :completed, inclusion: { in: BOOLEAN, message: '"completed" field must be true or false' }, allow_nil: true
-  validates :status_code, inclusion: { in: VALID_CODES, message: 'Invalid status code' }, allow_nil: true
+  validates :completed, inclusion: [true, false]
+  validates :status_code, numericality: { greater_than_or_equal_to: 100, less_than_or_equal_to: 599 }, allow_nil: true
   validate :completed_at_format
   validate :data_json_object
 

@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
+def random_email
+  local = []
+  8.times { |_| local.push(('a'..'z').to_a.sample) }
+  domain = ['aol.com', 'nsa.gov', 'jubii.dk', 'kreml.ru', 'hotmail.com', 'netscape.com'][rand(6)]
+  "#{local.join('')}@#{domain}"
+end
+
 module MainHelper
   def create_user
-    @current_user = User.create(email: 'admin@bridge.io', password: 'password', notifications: false)
+    @current_user = User.create(email: random_email, password: 'password', notifications: false)
     @token = JsonWebToken.encode(user_id: @current_user.id)
   end
 
@@ -32,11 +39,29 @@ module MainHelper
     )
   end
 
-  def event_data; end
-
-  def create_event
-    @event = Event.create({ bridge_id: 1, data: event_data })
+  def event_data
+    @data = { 'inbound' => { 'payload' => { 'FirstName' => 'Lee', 'LastName' => 'Oswald', 'UserName' => 'GrassyKnoll', 'Password' => { 'nested' => 'magic bullet' }, 'Email' => 'kgb63@yandex.ru' },
+                             'date' => '2020-11-17',
+                             'time' => '03:23:35',
+                             'ip' => '::1',
+                             'content_length' => 152 },
+              'outbound' => [{ 'request' => { 'payload' => { 'FirstName' => 'Lee', 'LastName' => 'Oswald', 'UserName' => 'GrassyKnoll', 'Password' => { 'nested' => 'magic bullet' }, 'Email' => 'kgb63@yandex.ru' }, 'date' => '2020-11-17', 'time' => '03:23:35', 'content_length' => 7 }, 'response' => { 'date' => '2020-11-17', 'time' => '03:23:35', 'status_code' => '200', 'message' => 'OK', 'size' => 7, 'payload' => { 'ip' => '153.33.111.24' } } }] }.to_json
+    @data
   end
 
-  def destroy_event; end
+  def create_event
+    @bridge = create_bridge
+    @bridge.save
+    @event = Event.create({
+                            bridge_id: @bridge.id,
+                            data: event_data,
+                            status_code: 200,
+                            completed: true,
+                            completed_at: Time.now.utc + 30
+                          })
+  end
+
+  def destroy_event
+    @event.destroy!
+  end
 end
