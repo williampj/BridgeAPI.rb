@@ -5,9 +5,9 @@ require_relative '../lib/exceptions/large_status_code'
 
 class EventWorker
   include Sidekiq::Worker
-  attr_accessor :retry_count
+  # attr_accessor :retry_count
 
-  sidekiq_retry_in { 5 } # TODO: SET RETRY_IN DYNAMICALLY
+  # sidekiq_retry_in { 5 } # TODO: SET RETRY_IN DYNAMICALLY
 
   SCHEME = 'http://'
   HTTP_ERRORS = [
@@ -21,16 +21,16 @@ class EventWorker
     Timeout::Error
   ].freeze
 
-  def perform(event_id)
+  def perform(event_id, retries = 0)
     event = Event.find(event_id)
     bridge = Bridge.find(event.bridge_id)
     execute_request_response_cycle(event, bridge)
     save_event(event)
   rescue *HTTP_ERRORS, Sidekiq::LargeStatusCode => e
     save_http_error(event, e) if HTTP_ERRORS.include?(e.class)
-    save_event(event) && return if retry_count&.>= bridge.retries
+    save_event(event) && return if retries >= bridge.retries
 
-    raise 'Error or high status code' # activates sidekiq retry
+    self.class.perform_in(bridge.delay.minutes, event_id, retries + 1)
   end
 
   private
