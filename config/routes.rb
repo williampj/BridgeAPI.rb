@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   post 'login', to: 'sessions#create'
   post 'events', to: 'events#create'
   get 'events', to: 'events#index'
-  get 'events/:id', to: 'events#show'
-  delete 'events/:id', to: 'events#destroy'
+  get 'events/:event_id', to: 'events#show'
+  delete 'events/:event_id', to: 'events#destroy'
   mount Sidekiq::Web => '/sidekiq'
 end

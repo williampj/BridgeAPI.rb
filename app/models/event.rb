@@ -12,24 +12,7 @@ class Event < ApplicationRecord
 
   belongs_to :bridge
 
-  def sidebar_format
-    updated_at = String(self.updated_at)
-    time = date_format(updated_at.split(' ')[1])
-    date = updated_at.split(' ')[0]
-    { id: id,
-      time: time.slice(0..-3),
-      date: date,
-      status_code: status_code }
-  end
-
   private
-
-  def date_format(time)
-    year = time.split('-')[0]
-    month = time.split('-')[1]
-    day = time.split('-')[2]
-    "#{year}-#{month}-#{day}"
-  end
 
   def set_urls
     self.inbound_url = bridge.inbound_url
@@ -39,11 +22,11 @@ class Event < ApplicationRecord
   def data_json_object
     data = JSON.parse(self.data)
     %w[inbound outbound].all? { |key| data.include?(key) } &&
-      %w[payload date time ip content_length].all? { |key| data['inbound'].include?(key) } ||
+      %w[payload dateTime ip contentLength].all? { |key| data['inbound'].include?(key) } ||
       errors.add(
         :data,
         'must include the keys: "inbound", "outbound",
-                  while "inbound" must include the keys "payload", "date", "time", "ip", "content_length"'
+                  while "inbound" must include the keys "payload", "dateTime", "ip", "contentLength"'
       )
   rescue JSON::ParserError, TypeError
     errors.add(:data, 'object must be a valid json object')

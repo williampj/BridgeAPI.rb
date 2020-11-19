@@ -40,7 +40,7 @@ module MainHelper
   end
 
   def event_data
-    @data = {
+    {
       'inbound' => {
         'payload' => {
           'FirstName' => 'Lee',
@@ -77,7 +77,6 @@ module MainHelper
           } }
       ]
     }.to_json
-    @data
   end
 
   def create_event

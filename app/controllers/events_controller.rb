@@ -2,12 +2,11 @@
 
 class EventsController < ApplicationController
   # before_action :authorize_request
+  before_action :set_events, only: :index
+  before_action :set_event, only: %i[show destroy]
 
   def index
-    events = retrieve_events
-    sidebar_events = create_sidebar_events(events)
-
-    render json: sidebar_events, status: 200
+    render json: @events, status: 200
   rescue ActiveRecord::RecordInvalid
     render json: { error: 'neither event_id nor bridge_id were valid' }, status: 400 # Bad Request
   rescue ActiveRecord::RecordNotFound
@@ -17,15 +16,13 @@ class EventsController < ApplicationController
   end
 
   def show
-    event = Event.find(event_params[:id])
-    render json: event, status: 200
+    render json: @event, status: 200
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'an event by that id was not found' }, status: 400
   end
 
   def destroy
-    event = Event.find(event_params[:id])
-    event.destroy
+    @event.destroy
   end
 
   def create
@@ -48,13 +45,11 @@ class EventsController < ApplicationController
   end
 
   def create_data_object
-    datetime = DateTime.now.utc.to_s.split(' ')
     { 'inbound' => {
       'payload' => JSON.parse(request.body.read),
-      'date' => datetime.first,
-      'time' => datetime[1],
+      'dateTime' => DateTime.now.utc,
       'ip' => request.ip,
-      'content_length' => request.content_length
+      'contentLength' => request.content_length
     },
       'outbound' => [] }
   end
@@ -67,18 +62,22 @@ class EventsController < ApplicationController
     )
   end
 
-  def create_sidebar_events(events)
-    events.map(&:sidebar_format).sort_by { |event| event[:id] }.reverse
+  def set_events
+    @events = if event_params[:bridge_id]
+                Event.where(bridge_id: event_params[:bridge_id]).order(completed_at: :desc).limit(100)
+              elsif event_params[:event_id]
+                Event.where(bridge_id: find_event.bridge_id).order(completed_at: :desc).limit(100)
+              else
+                raise ActiveRecord::NotNullViolation
+              end
   end
 
-  def retrieve_events
-    if event_params[:bridge_id]
-      Bridge.find(event_params[:bridge_id]).events
-    elsif event_params[:event_id]
-      Event.find(event_params[:event_id]).bridge.events
-    else
-      raise ActiveRecord::NotNullViolation
-    end
+  def set_event
+    @event = find_event
+  end
+
+  def find_event
+    Event.find(event_params[:event_id])
   end
 
   def find_bridge
