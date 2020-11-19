@@ -10,27 +10,18 @@ class EventWorker
   # sidekiq_retry_in { 5 } # TODO: SET RETRY_IN DYNAMICALLY
 
   SCHEME = 'http://'
-  HTTP_ERRORS = [
-    Net::HTTPBadResponse,
-    Net::HTTPHeaderSyntaxError,
-    Net::ProtocolError,
-    EOFError,
-    Errno::ECONNRESET,
-    Errno::EINVAL,
-    SocketError,
-    Timeout::Error
-  ].freeze
 
   def perform(event_id, retries = 0)
     event = Event.find(event_id)
     bridge = Bridge.find(event.bridge_id)
     execute_request_response_cycle(event, bridge)
-    save_event(event)
-  rescue *HTTP_ERRORS, Sidekiq::LargeStatusCode => e
-    save_http_error(event, e) if HTTP_ERRORS.include?(e.class)
-    save_event(event) && return if retries >= bridge.retries
+    complete_event(event)
+  rescue StandardError => e
+    binding.pry
+    save_http_error(event, e) unless e.instance_of?(Sidekiq::LargeStatusCode)
+    complete_event(event) && return if retries >= bridge.retries
 
-    self.class.perform_in(bridge.delay.minutes, event_id, retries + 1)
+    EventWorker.perform_in(bridge.delay.minutes, event_id, retries + 1)
   end
 
   private
@@ -39,7 +30,7 @@ class EventWorker
     bridge.headers.each { |header| req[header['key']] = header['value'] }
   end
 
-  def save_event(event)
+  def complete_event(event)
     event.completed = true
     event.completed_at = Time.now.utc
     event.save!
@@ -129,7 +120,6 @@ class EventWorker
   def execute_request_response_cycle(event, bridge)
     payload = extract_payload(bridge, event)
     http, req = generate_http_request(bridge, payload)
-
     save_request(event, req.length, payload)
     response = http.request(req)
     save_response(event, response)

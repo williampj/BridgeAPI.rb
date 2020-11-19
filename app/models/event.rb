@@ -4,7 +4,7 @@ BOOLEAN = [true, false].freeze
 
 class Event < ApplicationRecord
   before_validation :set_urls
-  validates :test, inclusion: { in: BOOLEAN, message: '"test" field must be true or false' }
+  validates :test, inclusion: [true, false]
   validates :completed, inclusion: [true, false]
   validates :status_code, numericality: { greater_than_or_equal_to: 100, less_than_or_equal_to: 599 }, allow_nil: true
   validate :completed_at_format
