@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './exceptions'
+require_relative './exceptions/jwt/expired_web_token'
 
 class JsonWebToken
   SECRET_KEY = Rails.application.secrets.secret_key_base.to_s
