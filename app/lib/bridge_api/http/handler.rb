@@ -3,12 +3,14 @@
 module BridgeApi
   module Http
     class Handler
-      # Inject a different builder or formatter
+      # Inject a different builder, formatter or deconstructor
       #
       # @param [BridgeApi::Http::Interfaces::Builder] http_builder
       attr_writer :http_builder,
                   # @param [BridgeApi::Http::Interfaces::Formatter] formatter
-                  :formatter
+                  :formatter,
+                  # @param [BridgeApi::Http::Interfaces::Deconstructor] formatter
+                  :deconstructor
 
       # @param [Event] event
       def initialize(event)
