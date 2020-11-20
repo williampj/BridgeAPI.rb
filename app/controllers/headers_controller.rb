@@ -12,7 +12,7 @@ class HeadersController < ApplicationController
   protected
 
   def set_header
-    @header = Header.find_by(id: params[:id])
-    render_message status: :unprocessable_entity unless @header&.bridge&.user == @current_user
+    @header = Header.includes(:bridge).find_by(id: params[:id])
+    render_message status: :unprocessable_entity unless @header&.bridge&.user_id == @current_user.id
   end
 end
