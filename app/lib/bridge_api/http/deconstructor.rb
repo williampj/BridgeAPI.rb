@@ -10,8 +10,10 @@ module BridgeApi
 
       # @param [ActiveRecord::Relation(Header)] user_headers
       def initialize(headers)
-        @headers = headers
-        @header_keys = headers.pluck(:key)
+        # Remove any headers that don't contain `$env` as they
+        # don't need to be filtered. Keys are downcased because
+        # `request.each_header` returns headers that are downcased.
+        @header_keys = headers.where('value like ?', '$env%').pluck(:key).map(&:downcase)
       end
 
       # Prevents sensitive headers from being stored in cleared text.
@@ -23,14 +25,7 @@ module BridgeApi
       #
       # @return [String]
       def deconstruct(key, value)
-        # Don't waste time on querying unless we know the header exists
-        return value unless header_keys.include?(key)
-
-        if headers.find_by(key: key).value.include?('$env')
-          'FILTERED'
-        else
-          value
-        end
+        header_keys.include?(key) ? 'FILTERED' : value
       end
 
       private
