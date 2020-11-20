@@ -12,8 +12,15 @@ class Event < ApplicationRecord
 
   belongs_to :bridge
 
+  def complete!
+    self.completed = true
+    self.completed_at = Time.now.utc
+    save! # TODO: With a bang?
+  end
+
   private
 
+  # TODO: Pass in bridge (or urls) to prevent db hit
   def set_urls
     self.inbound_url = bridge.inbound_url
     self.outbound_url = bridge.outbound_url

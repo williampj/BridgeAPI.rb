@@ -6,7 +6,7 @@ class EventsController < ApplicationController
   before_action :set_event, only: %i[show destroy]
 
   def index
-    render json: @events, status: 200
+    render json: { events: @events }, status: 200
   rescue ActiveRecord::RecordInvalid
     render json: { error: 'neither event_id nor bridge_id were valid' }, status: 400 # Bad Request
   rescue ActiveRecord::RecordNotFound
@@ -28,7 +28,8 @@ class EventsController < ApplicationController
   def create
     event = create_event_object(create_data_object, find_bridge)
     event.save!
-    EventWorker.perform_async(event.id)
+    # EventWorker.perform_async(event.id)
+    EventWorker.new.perform(event.id)
     render json: {}, status: 202 # Accepted (asynchronous processing)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'a bridge by that id was not found' }, status: 400
@@ -41,7 +42,7 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.permit(:id, :bridge_id, :event_id, :test)
+    params.require(:event).permit(:id, :bridge_id, :event_id, :test)
   end
 
   def create_data_object
