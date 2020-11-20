@@ -2,18 +2,22 @@
 
 module BridgeApi
   module Http
-    # Handles formatting requests & responses
+    # Handles formatting requests & responses. Accepts a deconstructor
+    # to aid in formatting.
     class Formatter
       include Interfaces::Formatter
 
-      def initialize; end
+      # @param [BridgeApi::Http::Interfaces::Deconstructor] deconstructor
+      def initialize(deconstructor)
+        @deconstructor = deconstructor
+      end
 
-      # Mutate the event object by storing a formatted request inside
+      # Mutates the event object by storing a formatted request inside
       # data.
       #
       # @param [Event] event
       # @param [Net::HTTP] req
-      # @param [Net::HTTP::Response] res
+      # @param [Net::HTTPResponse] res
       def format!(event, req, res)
         data = JSON.parse(event.data)
 
@@ -24,12 +28,12 @@ module BridgeApi
         event.data = data.to_json
       end
 
-      # Mutate the event object by storing a formatted request inside
+      # Mutates the event object by storing a formatted request inside
       # data.
       #
       # @param [Event] event
       # @param [Net::HTTP] req
-      # @param [Net::HTTP::Response] res
+      # @param [StandardError] error
       def format_error!(event, req, error)
         data = JSON.parse(event.data)
 
@@ -40,45 +44,11 @@ module BridgeApi
         event.data = data.to_json
       end
 
-      # Mutate the event object by storing a formatted request inside
-      # data.
-      #
-      # @param [Event] event
-      # @param [Net::HTTP] req
-      # def format_request!(event, req)
-      #   data = JSON.parse(event.data)
-
-      #   data['outbound'].push({ 'request' => formatted_request(req), 'response' => {} })
-      #   event.data = data.to_json
-      # end
-
-      # Mutate the event object by storing a formatted request inside
-      # data.
-      #
-      # @param [Event] event
-      # @param [Net::HTTP::Response] res
-      # def format_response!(event, res)
-      #   data = JSON.parse(event.data)
-
-      #   data['outbound'].last['response'] = formatted_response res
-      #   event.data = data.to_json
-      # end
-
-      # Mutate the event object by storing a formatted error message inside
-      # data.
-      #
-      # @param [Event] event
-      # @param [Net::HTTP::TODO] error
-      # def format_error!(event, error)
-      #   event_data = JSON.parse(event.data)
-
-      #   event_data['outbound'].last['response'] = formatted_error error
-      #   event.data = event_data.to_json
-      #   # event.save
-      # end
-
       private
 
+      attr_reader :deconstructor
+
+      # @param [Net::HTTPResponse] res
       def formatted_response(response)
         {
           dateTime: DateTime.now.utc,
@@ -89,17 +59,37 @@ module BridgeApi
         }
       end
 
+      # @param [Net::HTTP] req
       def formatted_request(request)
         {
-          payload: request.body,
+          payload: JSON.parse(request.body),
           dateTime: DateTime.now.utc,
-          contentLength: request.length,
-          uri: request.uri.to_s
+          contentLength: request['content-length'],
+          uri: request.uri.to_s,
+          headers: safe_headers(request)
         }
       end
 
+      # @param [StandardError] error
       def formatted_error(error)
         { message: error.message }
+      end
+
+      # Handles creating an Array of all request headers
+      #
+      # @param [Net::HTTP] req
+      #
+      # @return [Array(Hash(String, String))]
+      def safe_headers(req)
+        headers = []
+        req.each_header do |key, value|
+          headers << {
+            key: key,
+            value: deconstructor.deconstruct(key, value)
+          }
+        end
+
+        headers
       end
     end
   end

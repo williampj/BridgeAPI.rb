@@ -5,10 +5,13 @@ module BridgeApi
     module Interfaces
       # Abstract "class"
       module Formatter
-        # TODO
-        # def generate
-        #   raise NotImplementedError, 'A request builder class must implement #generate'
-        # end
+        def format!(_event, _req, _res)
+          raise NotImplementedError, 'A request builder class must implement #format!(event, req, res)'
+        end
+
+        def format_error!(_event, _req, _error)
+          raise NotImplementedError, 'A request builder class must implement #format_error!(event, req, error)'
+        end
       end
     end
   end

@@ -12,6 +12,7 @@ class Event < ApplicationRecord
 
   belongs_to :bridge
 
+  # Marks an event as complete & saves
   def complete!
     self.completed = true
     self.completed_at = Time.now.utc

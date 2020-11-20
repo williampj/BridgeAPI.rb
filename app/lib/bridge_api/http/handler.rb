@@ -4,27 +4,29 @@ module BridgeApi
   module Http
     class Handler
       # Inject a different builder or formatter
+      #
       # @param [BridgeApi::Http::Interfaces::Builder] http_builder
       attr_writer :http_builder,
                   # @param [BridgeApi::Http::Interfaces::Formatter] formatter
                   :formatter
 
-      # @param [Integer] event_id
+      # @param [Event] event
       def initialize(event)
         @event = event
         @bridge = @event.bridge
       end
 
+      # Handles building and sending a HTTP request and then
+      # formats and stores the data into event object.
       def execute
-        http, @request = http_builder.generate
-        response = http.request request
-        # formatter.format! event, request, response
-        formatter.format_request! event, request
-        formatter.format_response! event, response
+        net_http, @request = http_builder.generate
+        response = net_http.request request
+        formatter.format! event, request, response
 
         raise Sidekiq::LargeStatusCode if response.code.to_i >= 300
       end
 
+      # Handles storing the request & error into the event data
       def cleanup(error)
         formatter.format_error! event, request, error
       end
@@ -42,7 +44,12 @@ module BridgeApi
 
       # @return [BridgeApi::Http::Interfaces::Formatter]
       def formatter
-        @formatter ||= Formatter.new
+        @formatter ||= Formatter.new deconstructor
+      end
+
+      # @return [BridgeApi::Http::Interfaces::Deconstructor]
+      def deconstructor
+        @deconstructor ||= Deconstructor.new bridge.headers
       end
     end
   end

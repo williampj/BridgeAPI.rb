@@ -6,7 +6,7 @@ module BridgeApi
 
     # Handles building a HTTP Request object
     class Builder
-      SCHEME = 'http://'
+      SCHEME = 'https://'
 
       include Interfaces::Builder
 
@@ -16,19 +16,12 @@ module BridgeApi
         @test_env = test_env
       end
 
-      # Generate & return `Net::HTTP`(http) & `Net::HTTP::{http_method}`(request) objects
+      # Generate & return `Net::HTTP`(net_http) & `Net::HTTP::{http_method}`(http_request) objects
       #
       # @return [Tuple(Net::HTTP, Net::HTTP::{http_method})]
       def generate
         [net_http, http_request]
       end
-
-      # TODO
-      #
-      # @return [Hash(String, String)]
-      # def payload
-      #   parsed_payload
-      # end
 
       private
 
@@ -37,8 +30,7 @@ module BridgeApi
 
       def net_http
         http = Net::HTTP.new(uri.host, uri.port)
-        # http.use_ssl = true # TODO: (uri.scheme == 'https')
-        puts 'use ssl'
+        http.use_ssl = true
         http
       end
 
@@ -58,6 +50,7 @@ module BridgeApi
 
       # Sets the user defined headers into the `request` object
       def generate_headers
+        # TODO: Parser
         headers.each { |header| request[header['key']] = header['value'] }
       end
 
@@ -66,7 +59,7 @@ module BridgeApi
       # @return [Hash(String, String)]
       def parsed_payload
         # TODO: Parser
-        @parsed_payload ||= unparsed_payload # payload_parser.parse unparsed_payload
+        @parsed_payload ||= JSON.parse unparsed_payload # payload_parser.parse unparsed_payload
       end
 
       # Returns either payload or test_payload depending
@@ -74,7 +67,7 @@ module BridgeApi
       #
       # @return [JSON]
       def unparsed_payload
-        @unparsed_payload ||= JSON.parse data[test_env? ? 'test_payload' : 'payload']
+        @unparsed_payload ||= data[test_env? ? 'test_payload' : 'payload']
       end
 
       # Ensures the scheme used is using TSL
@@ -111,7 +104,7 @@ module BridgeApi
 
       # @return [ActiveRecord::Relation(Header)]
       def headers
-        bridge.headers
+        @headers ||= bridge.headers
       end
 
       # Checks if this request is a test event
