@@ -9,7 +9,11 @@ class BridgesController < ApplicationController
   end
 
   def show
-    render json: { bridge: @bridge }, include: %i[headers environment_variables events], status: :ok
+    render(
+      json: { bridge: @bridge },
+      include: { headers: {}, environment_variables: { except: :value }, events: {} },
+      status: :ok
+    )
   end
 
   def create
