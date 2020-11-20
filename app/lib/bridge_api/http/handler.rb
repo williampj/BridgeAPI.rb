@@ -7,11 +7,17 @@ module BridgeApi
       # Inject a different builder, formatter or deconstructor
       #
       # @param [BridgeApi::Http::Interfaces::Builder] http_builder
+      # @param [BridgeApi::Http::Interfaces::Formatter] formatter
+      # @param [BridgeApi::Http::Interfaces::Deconstructor] formatter
+      # @param [BridgeApi::SyntaxParser::Interfaces::HeadersParser] headers_parser
+      # @param [BridgeApi::SyntaxParser::Interfaces::PayloadParser] payload_parser
       attr_writer :http_builder,
-                  # @param [BridgeApi::Http::Interfaces::Formatter] formatter
                   :formatter,
-                  # @param [BridgeApi::Http::Interfaces::Deconstructor] formatter
-                  :deconstructor
+                  :deconstructor,
+                  :headers_parser,
+                  :payload_parser
+
+      attr_reader :event, :bridge
 
       # @param [Event] event
       def initialize(event)
@@ -36,13 +42,11 @@ module BridgeApi
 
       private
 
-      attr_accessor :event,
-                    :bridge,
-                    :request
+      attr_reader :request
 
       # @return [BridgeApi::Http::Interfaces::Builder]
       def http_builder
-        @http_builder ||= Builder.new bridge, event.test, payload_parser, headers_parser
+        @http_builder ||= Builder.new self, payload_parser, headers_parser
       end
 
       # @return [BridgeApi::Http::Interfaces::Formatter]

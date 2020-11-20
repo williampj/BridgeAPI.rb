@@ -43,7 +43,7 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.require(:event).permit(:id, :bridge_id, :event_id, :test)
+    params.permit(:id, :bridge_id, :event_id, :test)
   end
 
   def create_data_object

@@ -16,7 +16,14 @@ bridge = Bridge.create(
   retries: 5,
   delay: 15,
   data: {
-    payload: '{"FirstName":"Lee","LastName":"Oswald","UserName":"GrassyKnoll","Password":{"nested":"magic bullet"},"Email":"kgb63@yandex.ru"}',
+    payload: {
+      first_name: 'Lee',
+      last_name: 'Oswald',
+      username: 'GrassyKnoll',
+      email: 'kgb63@yandex.ru',
+      top_level_key: '$payload.top_level_key',
+      nested_key: '$payload.nested_key_1.nested_key_2'
+    }.to_json,
     test_payload: '{"test_key_one":"testerstring","test_key_two":["stringinarray"]}'
   }
 )

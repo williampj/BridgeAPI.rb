@@ -57,23 +57,23 @@ module BridgeApi
         @user_data = user_data
         parse_payload!
 
-        outbound_request
+        outbound_payload
       end
 
       private
 
       attr_reader :user_data,        # User defined payload (bridge.data['payload'])
-                  :outbound_request, # Parsed request returned from `parse_payload`
-                  :incoming_payload, # Inbound request from service A
+                  :outbound_payload, # Parsed request returned from `parse_payload`
+                  :incoming_payload, # Inbound payload from service A
                   :environment_variables
 
       # Iterates through user defined payload and parse values containing `$env` or `$payload`
-      # Reinitializes & mutates `outbound_request`
+      # Reinitializes & mutates `outbound_payload`
       def parse_payload!
-        @outbound_request = {} # Reset
+        @outbound_payload = {} # Reset
 
         user_data.each do |key, val|
-          outbound_request[key] = if val.include?('$env')
+          outbound_payload[key] = if val.include?('$env')
                                     fetch_environment_variable(val)
                                   elsif val.include?('$payload')
                                     fetch_payload_data(val)
@@ -86,6 +86,7 @@ module BridgeApi
       def fetch_payload_data(value)
         values = value.split('.')
         data = incoming_payload # Set data to the incoming request
+        binding.pry
 
         values.each_with_index do |val, idx|
           next if idx.zero? # skip the $payload

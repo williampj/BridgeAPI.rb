@@ -10,10 +10,10 @@ module BridgeApi
 
       include Interfaces::Builder
 
+      # TODO
       # @param [Bridge] bridge - The bridge that event belongs to
-      def initialize(bridge, test_env, payload_parser, headers_parser)
-        @bridge = bridge
-        @test_env = test_env
+      def initialize(request_handler, payload_parser, headers_parser)
+        @request_handler = request_handler
         @payload_parser = payload_parser
         @headers_parser = headers_parser
       end
@@ -27,8 +27,11 @@ module BridgeApi
 
       private
 
+      delegate :bridge, to: :request_handler
+      delegate :event, to: :request_handler
+
       attr_reader :request,
-                  :bridge,
+                  :request_handler,
                   :payload_parser,
                   :headers_parser
 
@@ -120,7 +123,7 @@ module BridgeApi
       #
       # @return [Bool]
       def test_env?
-        @test_env
+        event.test
       end
     end
   end

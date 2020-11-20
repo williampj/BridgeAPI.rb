@@ -17,6 +17,8 @@ class EventWorker
 
     #   return event.complete! if retry_count&.>= bridge.retries # TODO: Off by one?
 
+    #   # TODO: We need filter error messages. ArgumentError and our stuff can be ignored but
+    #   # should we really tell users "StandardError" if their service replied with 404?
     #   raise StandardError
   end
 end
