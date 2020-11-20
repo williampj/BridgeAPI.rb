@@ -11,9 +11,11 @@ module BridgeApi
       include Interfaces::Builder
 
       # @param [Bridge] bridge - The bridge that event belongs to
-      def initialize(bridge, test_env)
+      def initialize(bridge, test_env, payload_parser, headers_parser)
         @bridge = bridge
         @test_env = test_env
+        @payload_parser = payload_parser
+        @headers_parser = headers_parser
       end
 
       # Generate & return `Net::HTTP`(net_http) & `Net::HTTP::{http_method}`(http_request) objects
@@ -26,18 +28,22 @@ module BridgeApi
       private
 
       attr_reader :request,
-                  :bridge
+                  :bridge,
+                  :payload_parser,
+                  :headers_parser
 
       def net_http
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
+
         http
       end
 
       def http_request
         @request = net_http_request(uri)
-        generate_headers
+        parse_headers
         request.body = parsed_payload.to_json
+
         request
       end
 
@@ -49,17 +55,20 @@ module BridgeApi
       end
 
       # Sets the user defined headers into the `request` object
-      def generate_headers
-        # TODO: Parser
-        headers.each { |header| request[header['key']] = header['value'] }
+      def parse_headers
+        headers_parser.parse(headers) do |key, value|
+          request[key] = value
+        end
       end
 
       # Parse our custom syntax into the expected values
       #
       # @return [Hash(String, String)]
       def parsed_payload
-        # TODO: Parser
-        @parsed_payload ||= JSON.parse unparsed_payload # payload_parser.parse unparsed_payload
+        @parsed_payload ||= payload_parser.parse(
+          event.inbound_payload,
+          JSON.parse(unparsed_payload)
+        )
       end
 
       # Returns either payload or test_payload depending

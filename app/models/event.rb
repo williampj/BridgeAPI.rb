@@ -19,6 +19,14 @@ class Event < ApplicationRecord
     save! # TODO: With a bang?
   end
 
+  # Parses `data` and fetches the payload from the
+  # inbound request.
+  #
+  # @return [Hash(String, String)]
+  def inbound_payload
+    JSON.parse(data)['inbound']['payload']
+  end
+
   private
 
   # TODO: Pass in bridge (or urls) to prevent db hit

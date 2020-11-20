@@ -2,6 +2,7 @@
 
 module BridgeApi
   module Http
+    # TODO
     class Handler
       # Inject a different builder, formatter or deconstructor
       #
@@ -41,7 +42,7 @@ module BridgeApi
 
       # @return [BridgeApi::Http::Interfaces::Builder]
       def http_builder
-        @http_builder ||= Builder.new bridge, event.test
+        @http_builder ||= Builder.new bridge, event.test, payload_parser, headers_parser
       end
 
       # @return [BridgeApi::Http::Interfaces::Formatter]
@@ -52,6 +53,16 @@ module BridgeApi
       # @return [BridgeApi::Http::Interfaces::Deconstructor]
       def deconstructor
         @deconstructor ||= Deconstructor.new bridge.headers
+      end
+
+      # @return [BridgeApi::SyntaxParser::Interfaces::HeadersParser]
+      def headers_parser
+        @headers_parser ||= SyntaxParser::HeadersParser.new bridge.environment_variables
+      end
+
+      # @return [BridgeApi::SyntaxParser::Interfaces::PayloadParser]
+      def payload_parser
+        @payload_parser ||= SyntaxParser::PayloadParser.new bridge.environment_variables
       end
     end
   end
