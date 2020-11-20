@@ -11,18 +11,26 @@ class EventWorker
 
   SCHEME = 'http://'
 
+  # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Lint/RescueException
   def perform(event_id, retries = 0)
-    event = Event.find(event_id)
-    bridge = Bridge.find(event.bridge_id)
+    event = Event.find(event_id).includes(:bridge)
+    bridge = event.bridge
+
     execute_request_response_cycle(event, bridge)
     complete_event(event)
-  rescue StandardError => e
-    binding.pry
+  rescue Exception => e
     save_http_error(event, e) unless e.instance_of?(Sidekiq::LargeStatusCode)
-    complete_event(event) && return if retries >= bridge.retries
+    if retries >= bridge.retries.to_i
+      complete_event(event)
+      return
+    end
 
+    # TODO
     EventWorker.perform_in(bridge.delay.minutes, event_id, retries + 1)
   end
+  # rubocop:enable Lint/RescueException
+  # rubocop:enable Metrics/MethodLength
 
   private
 

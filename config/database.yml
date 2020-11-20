@@ -24,6 +24,8 @@ default: &default
 development:
   <<: *default
   database: bridgeapi_rb_development
+  username: andrew
+  password:
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -58,8 +60,8 @@ development:
 test:
   <<: *default
   database: bridgeapi_rb_test
-  username: ruby
-  password: ruby
+  username: andrew
+  password:
   host: localhost
   port: 5432
 
