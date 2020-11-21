@@ -63,4 +63,6 @@ RSpec.describe Event, type: :model do
     subject.status_code = 10
     expect { subject.save! }.to raise_error('Validation failed: Status code must be greater than or equal to 100')
   end
+
+  pending '#inbound_payload returns the proper data'
 end
