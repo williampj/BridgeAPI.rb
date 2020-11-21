@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './event_helper'
+
 def random_email
   local = []
   8.times { |_| local.push(('a'..'z').to_a.sample) }
@@ -8,6 +10,8 @@ def random_email
 end
 
 module MainHelper
+  include EventHelper
+
   def create_user
     @current_user = User.create(email: random_email, password: 'password', notifications: false)
     @token = JsonWebToken.encode(user_id: @current_user.id)

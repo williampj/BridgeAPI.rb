@@ -21,7 +21,7 @@ module BridgeApi
     # # Setting custom `http_builder`
     # event = Event.find(1)
     #
-    # handler = BridgeApi::Http::Handler.new event
+    # handler = BridgeApi::Http::RequestHandler.new event
     # handler.http_builder =
     #   XmlHttpBuilder.new handler, handler.payload_parser, handler.headers_parser
     #
@@ -30,7 +30,7 @@ module BridgeApi
     # event.complete! # => events `data` attribute was mutated setting data['outbound'] with
     # # {"request" => {request_data}, "response" => {response_from_server} }
     # ```
-    class Handler
+    class RequestHandler
       # Inject any piece of the request handling system for extending or testing.
       #
       # @param [BridgeApi::Http::Interfaces::Builder] http_builder

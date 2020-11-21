@@ -10,7 +10,7 @@ module BridgeApi
     # ```ruby
     # event = Event.find(1)
     #
-    # handler = BridgeApi::Http::Handler.new event
+    # handler = BridgeApi::Http::RequestHandler.new event
     # builder = BridgeApi::Http::Builder.new handler, handler.payload_parser, handler.headers_parser
     #
     # builder.generate # => returns an Tuple containing Net::Http & Net::Http::{user_request_type} objects
