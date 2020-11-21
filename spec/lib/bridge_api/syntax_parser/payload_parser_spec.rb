@@ -61,7 +61,12 @@ RSpec.describe BridgeApi::SyntaxParser::PayloadParser do
           'data' => {
             'nested_key' => '$payload.data',
             'nested_array' => [
-              'one' => '$payload.nested_data.nested_data_1'
+              {
+                'one' => '$payload.nested_data.nested_data_1'
+              },
+              {
+                'two' => '$payload.nested_data.nested_data_1'
+              }
             ]
           }
         }
@@ -72,6 +77,13 @@ RSpec.describe BridgeApi::SyntaxParser::PayloadParser do
           'nested_array' => [
             {
               'one' => [
+                {
+                  'nested_data_2' => 'hello world2'
+                }
+              ]
+            },
+            {
+              'two' => [
                 {
                   'nested_data_2' => 'hello world2'
                 }
