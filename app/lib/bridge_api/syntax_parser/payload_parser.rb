@@ -50,10 +50,8 @@ module BridgeApi
       # @return [Hash(String, String)]
       def parse(incoming_payload, user_data)
         @incoming_payload = incoming_payload
-        @user_data = user_data
-        parse_payload!
-
-        outbound_payload
+        # @user_data = user_data
+        parse_payload!(user_data)
       end
 
       private
@@ -65,19 +63,28 @@ module BridgeApi
 
       # Iterates through user defined payload and parse values containing `$env` or `$payload`
       # Reinitializes & mutates `outbound_payload`
-      def parse_payload!
-        @outbound_payload = {} # Reset
+      def parse_payload!(user_data)
+        outbound_payload = {}
+        user_data.each { |key, val| outbound_payload[key] = parse_value(val) }
 
-        user_data.each do |key, val|
-          outbound_payload[key] = if val.include?('$env')
-                                    fetch_environment_variable(val)
-                                  elsif val.include?('$payload')
-                                    fetch_payload_data(val)
-                                  else
-                                    val
-                                  end
+        outbound_payload
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      def parse_value(value)
+        if value.include?('$env')
+          fetch_environment_variable(value)
+        elsif value.include?('$payload')
+          fetch_payload_data(value)
+        elsif value.instance_of?(Hash)
+          parse_payload!(value)
+        elsif value.instance_of?(Array)
+          value.map { |i| parse_payload!(i) }
+        else
+          value
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def fetch_payload_data(value)
         values = value.split('.')
