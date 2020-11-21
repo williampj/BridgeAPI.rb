@@ -54,7 +54,7 @@ module BridgeApi
       end
 
       def http_request
-        @request = net_http_request(uri)
+        @request = net_http_request
         parse_headers!
         request.body = parsed_payload.to_json
 
@@ -106,7 +106,7 @@ module BridgeApi
       # HTTP method.
       #
       # @return [Net::HTTP::{http_method}]
-      def net_http_request(uri)
+      def net_http_request
         "Net::HTTP::#{http_method}".constantize.new(uri, 'Content-Type' => 'application/json')
       end
 
