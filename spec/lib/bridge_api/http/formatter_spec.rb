@@ -2,7 +2,7 @@
 
 require_relative './spec_helper'
 
-RSpec.describe BridgeApi::SyntaxParser::HeadersParser do
+RSpec.describe BridgeApi::Http::Formatter do
   before do
     stub_request(:post, 'http://example.com/some_path?query=string')
       .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
