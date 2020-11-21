@@ -12,7 +12,7 @@ bridge = Bridge.create(
   method: 'POST',
   retries: 5,
   delay: 15,
-  data: { payload: {}, test_payload: {} }
+  data: { payload: '{}', test_payload: '{}' }
 )
 
 bridge.environment_variables << EnvironmentVariable.create(key: 'database', value: 'a102345ij2')
@@ -27,7 +27,7 @@ bridge2 = Bridge.create(
   method: 'PATCH',
   retries: 0,
   delay: 0,
-  data: { payload: {}, test_payload: {} }
+  data: { payload: '{}', test_payload: '{}' }
 )
 
 bridge2.environment_variables << EnvironmentVariable.create(key: 'database', value: 'z9992374623')
