@@ -3,12 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe BridgeApi::Http::Builder do
-  before do
-  end
-
-  after do
-  end
-
   subject do
     create(:bridge, :with_env)
   end
