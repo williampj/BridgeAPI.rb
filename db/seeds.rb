@@ -12,7 +12,7 @@ bridge = Bridge.create(
   title: 'My First Bridge',
   inbound_url: 'bridgeapi.com/249634',
   outbound_url: 'c41a7126-a18c-4af6-880e-6857771a35c8.mock.pstmn.io/success_event',
-  method: 'POST',
+  http_method: 'POST',
   retries: 5,
   delay: 15,
   data: {
@@ -38,7 +38,7 @@ bridge2 = Bridge.create(
   title: 'My Second Bridge',
   inbound_url: 'bridgeapi.com/746353',
   outbound_url: test_url,
-  method: 'PATCH',
+  http_method: 'PATCH',
   retries: 3,
   delay: 0,
   data: {

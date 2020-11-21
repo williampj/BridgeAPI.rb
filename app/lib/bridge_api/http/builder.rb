@@ -107,12 +107,12 @@ module BridgeApi
       #
       # @return [Net::HTTP::{http_method}]
       def net_http_request(uri)
-        "Net::HTTP::#{method}".constantize.new(uri, 'Content-Type' => 'application/json')
+        "Net::HTTP::#{http_method}".constantize.new(uri, 'Content-Type' => 'application/json')
       end
 
       # @return [String]
-      def method
-        bridge.method.capitalize
+      def http_method
+        bridge.http_method.capitalize
       end
 
       # @return [Hash(String, JSON)]

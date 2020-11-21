@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_13_001336) do
+ActiveRecord::Schema.define(version: 2020_11_21_142638) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 2020_11_13_001336) do
     t.string "title", null: false
     t.string "inbound_url", null: false
     t.string "outbound_url", null: false
-    t.string "method", null: false
+    t.string "http_method", null: false
     t.integer "retries", null: false
     t.integer "delay", null: false
     t.jsonb "data", null: false

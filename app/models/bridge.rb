@@ -25,13 +25,18 @@ RETRIES ||= [
   5
 ].freeze
 
+# `data` column:
+# {
+#   "payload"      => {}
+#   "test_payload" => {}
+# }
 class Bridge < ApplicationRecord
   before_validation :set_inbound_url, on: :create
   before_validation :set_payloads, on: :create
   validates :title, presence: true
   validates :inbound_url, presence: true, uniqueness: true
   validates :outbound_url, presence: true
-  validates :method, inclusion: METHODS
+  validates :http_method, inclusion: METHODS
   validates :delay, inclusion: DELAYS
   validates :retries, inclusion: RETRIES
   validate :validate_payloads

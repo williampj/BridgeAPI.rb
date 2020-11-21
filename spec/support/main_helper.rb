@@ -30,7 +30,7 @@ module MainHelper
       user: @current_user,
       title: 'bridge',
       outbound_url: "doggoapi.io/#{(String(rand).split '.')[1]}",
-      method: 'POST',
+      http_method: 'POST',
       retries: 5,
       delay: 15,
       data: { payload: '{}', test_payload: '{}' }

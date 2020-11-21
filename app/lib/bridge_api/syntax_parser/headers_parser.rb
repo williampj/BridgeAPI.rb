@@ -33,6 +33,7 @@ module BridgeApi
       # in `header.key` & a parsed version of `header.value` as arguments.
       #
       # @param [ActiveRecord::Relation(Header)] environment_variables
+      # @param [Proc] block
       #
       # @return [Array(Hash(String, String))]
       def parse(headers, &block)

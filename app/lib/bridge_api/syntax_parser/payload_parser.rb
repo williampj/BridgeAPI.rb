@@ -86,7 +86,7 @@ module BridgeApi
         values.each_with_index do |val, idx|
           next if idx.zero? # skip the $payload
 
-          data = data[val] # dig deeper into the request on each iteration
+          data = data[val.to_s] || data[val.to_sym] # dig deeper into the request on each iteration
           raise ::InvalidPayloadKey if data.nil?
         end
 

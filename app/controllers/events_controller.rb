@@ -28,14 +28,15 @@ class EventsController < ApplicationController
   def create
     event = create_event_object(create_data_object, find_bridge)
     event.save!
-    EventWorker.perform_async(event.id)
+    # EventWorker.perform_async(event.id)
+    EventWorker.new.perform(event.id)
     render json: {}, status: 202 # Accepted (asynchronous processing)
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: 'a bridge by that id was not found' }, status: 400
-  rescue ActiveRecord::RecordInvalid
-    render json: { error: 'payload, bridge_id, or urls were invalid' }, status: 400 # Bad Request
-  rescue ActiveRecord::NotNullViolation
-    render json: { error: 'payload, bridge_id, or urls fields were not submitted' }, status: 400 # Bad Request
+    # rescue ActiveRecord::RecordNotFound
+    #   render json: { error: 'a bridge by that id was not found' }, status: 400
+    # rescue ActiveRecord::RecordInvalid
+    #   render json: { error: 'payload, bridge_id, or urls were invalid' }, status: 400 # Bad Request
+    # rescue ActiveRecord::NotNullViolation
+    #   render json: { error: 'payload, bridge_id, or urls fields were not submitted' }, status: 400 # Bad Request
   end
 
   private
@@ -45,13 +46,15 @@ class EventsController < ApplicationController
   end
 
   def create_data_object
-    { 'inbound' => {
-      'payload' => JSON.parse(request.body.read),
-      'dateTime' => DateTime.now.utc,
-      'ip' => request.ip,
-      'contentLength' => request.content_length
-    },
-      'outbound' => [] }
+    {
+      'inbound' => {
+        'payload' => JSON.parse(request.body.read),
+        'dateTime' => DateTime.now.utc,
+        'ip' => request.ip,
+        'contentLength' => request.content_length
+      },
+      'outbound' => []
+    }
   end
 
   def create_event_object(data, bridge)

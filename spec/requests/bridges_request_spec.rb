@@ -134,7 +134,7 @@ RSpec.describe 'Bridges', type: :request do
     end
     it 'doesnt create bridge without method' do
       invalid_hash = bridge_hash
-      invalid_hash[:method] = nil
+      invalid_hash[:http_method] = nil
 
       post bridges_path, params: { bridge: invalid_hash }, headers: authenticated_token
 

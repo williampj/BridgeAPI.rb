@@ -10,7 +10,7 @@ class EventWorker
 
   def perform(event_id, _retries = 0)
     event = Event.includes(:bridge).find(event_id)
-    request_handler = ::BridgeApi::Http::Handler.new(event)
+    request_handler = ::BridgeApi::Http::RequestHandler.new(event)
     request_handler.execute
     event.complete!
   rescue StandardError => e
