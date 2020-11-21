@@ -39,6 +39,7 @@ module MainHelper
     )
   end
 
+  # rubocop:disable Metrics/MethodLength
   def event_data
     {
       'inbound' => {
@@ -78,6 +79,7 @@ module MainHelper
       ]
     }.to_json
   end
+  # rubocop:enable Metrics/MethodLength
 
   def create_event
     @bridge = create_bridge

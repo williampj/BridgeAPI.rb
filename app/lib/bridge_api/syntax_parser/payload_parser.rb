@@ -82,7 +82,6 @@ module BridgeApi
       def fetch_payload_data(value)
         values = value.split('.')
         data = incoming_payload # Set data to the incoming request
-        binding.pry
 
         values.each_with_index do |val, idx|
           next if idx.zero? # skip the $payload
