@@ -50,10 +50,10 @@ module MainHelper
           'Password' => { 'nested' => 'magic bullet' },
           'Email' => 'kgb63@yandex.ru'
         },
-        'date' => '2020-11-17',
-        'time' => '03:23:35',
+        'dateTime' => '2020-11-17',
         'ip' => '::1',
-        'content_length' => 152
+        'contentLength' => '152',
+        'headers' => []
       },
       'outbound' => [
         { 'request' => {
@@ -64,16 +64,15 @@ module MainHelper
             'Password' => { 'nested' => 'magic bullet' },
             'Email' => 'kgb63@yandex.ru'
           },
-          'date' => '2020-11-17',
-          'time' => '03:23:35',
-          'content_length' => 7
+          'dateTime' => '2020-11-17',
+          'contentLength' => '7'
         },
           'response' => {
             'date' => '2020-11-17',
             'time' => '03:23:35',
             'status_code' => '200',
             'message' => 'OK',
-            'size' => 7,
+            'size' => '7',
             'payload' => { 'ip' => '153.33.111.24' }
           } }
       ]

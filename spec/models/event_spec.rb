@@ -21,15 +21,6 @@ RSpec.describe Event, type: :model do
     expect(subject).to_not be_valid
   end
 
-  it 'can be converted to side_bar format' do
-    expect(subject.sidebar_format).to match(
-      id: subject.id,
-      time: a_string_matching(/\d{1,2}:\d{1,2}:\d{1,2}/),
-      date: a_string_matching(/\d{4}-\d{1,2}-\d{1,2}/),
-      status_code: an_instance_of(Integer)
-    )
-  end
-
   it 'belongs to a bridge' do
     expect(subject.bridge.class).to eql Bridge
   end

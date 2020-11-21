@@ -38,11 +38,11 @@ class Event < ApplicationRecord
   def data_json_object
     data = JSON.parse(self.data)
     %w[inbound outbound].all? { |key| data.include?(key) } &&
-      %w[payload dateTime ip contentLength].all? { |key| data['inbound'].include?(key) } ||
+      %w[payload dateTime ip contentLength headers].all? { |key| data['inbound'].include?(key) } ||
       errors.add(
         :data,
         'must include the keys: "inbound", "outbound",
-                  while "inbound" must include the keys "payload", "dateTime", "ip", "contentLength"'
+                  while "inbound" must include the keys "payload", "dateTime", "ip", "contentLength", "headers"'
       )
   rescue JSON::ParserError, TypeError
     errors.add(:data, 'object must be a valid json object')
