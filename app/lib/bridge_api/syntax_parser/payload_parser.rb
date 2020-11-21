@@ -44,25 +44,25 @@ module BridgeApi
       # Parses the user's custom payload replacing any values containing `$env`
       # or `$payload` with the respective value
       #
-      # @param [Hash(String, String)] incoming_payload
-      # @param [Hash(String, String)] user_data
+      # @param [Hash(String, String | Hash | Array)] incoming_payload
+      # @param [Hash(String, String | Hash | Array)] user_data
       #
-      # @return [Hash(String, String)]
+      # @return [Hash(String, String | Hash | Array)]
       def parse(incoming_payload, user_data)
         @incoming_payload = incoming_payload
-        # @user_data = user_data
         parse_payload!(user_data)
       end
 
       private
 
-      attr_reader :user_data,        # User defined payload (bridge.data['payload'])
-                  :outbound_payload, # Parsed request returned from `parse_payload`
-                  :incoming_payload, # Inbound payload from service A
+      attr_reader :incoming_payload, # Inbound payload from service A
                   :environment_variables
 
       # Iterates through user defined payload and parse values containing `$env` or `$payload`
-      # Reinitializes & mutates `outbound_payload`
+      #
+      # @param [Hash(String, String | Hash | Array)] user_data
+      #
+      # @return [Hash(String, String | Hash | Array)]
       def parse_payload!(user_data)
         outbound_payload = {}
         user_data.each { |key, val| outbound_payload[key] = parse_value(val) }
@@ -70,6 +70,13 @@ module BridgeApi
         outbound_payload
       end
 
+      # Handles parsing a value depending on its value or type.
+      # Will call `parse_payload!` recursively if value is a
+      # Hash or Array.
+      #
+      # @param [String | Hash | Array] value
+      #
+      # @return [String | Hash | Array]
       # rubocop:disable Metrics/MethodLength
       def parse_value(value)
         if value.include?('$env')
@@ -79,6 +86,7 @@ module BridgeApi
         elsif value.instance_of?(Hash)
           parse_payload!(value)
         elsif value.instance_of?(Array)
+          # TODO: Add support for accessing a single element
           value.map { |i| parse_payload!(i) }
         else
           value
