@@ -1,41 +1,37 @@
 # frozen_string_literal: true
 
-# This class parses user defined headers & payloads into the values we expect
-# to send to the outbound service.
-#
-# Example:
-#
-# ```ruby
-# custom_user_payload = {
-#   'hello' => '$payload.top_level_key',
-#   'environment_variable' => '$env.API_KEY',
-#   'did_you' => '$payload.nested_key_1.nested_key_2.nested_key_3'
-# }
-#
-# incoming_payload_from_service_a = {
-#   'top_level_key' => 'world',
-#   'nested_key_1' => {
-#     'nested_key_2' => {
-#       'nested_key_3' => 'make it!'
-#     }
-#   }
-# }
-#
-# bridge = Bridge.where(user_id: @current_user.id)
-#
-# syntax_parser = SyntaxParser.new(bridge)
-#
-# syntax_parser.parse_payload(
-#  incoming_payload_from_service_a,
-#  custom_user_payload
-# ) # => Hash(String, String) where $payload & $env are replaced with their respective values
-#
-# syntax_parser.parse_headers # => Array(Hash(String, String)) where $env is
-# replaced with decrypted environment variable value
-# ```
 module BridgeApi
   module SyntaxParser
-    # TODO: Doc
+    # This class parses user defined headers & payloads into the values we expect
+    # to send to the outbound service.
+    #
+    # Example:
+    #
+    # ```ruby
+    # custom_user_payload = {
+    #   'hello' => '$payload.top_level_key',
+    #   'environment_variable' => '$env.API_KEY',
+    #   'did_you' => '$payload.nested_key_1.nested_key_2.nested_key_3'
+    # }
+    #
+    # incoming_payload_from_service_a = {
+    #   'top_level_key' => 'world',
+    #   'nested_key_1' => {
+    #     'nested_key_2' => {
+    #       'nested_key_3' => 'make it!'
+    #     }
+    #   }
+    # }
+    #
+    # bridge = Bridge.where(user_id: @current_user.id)
+    #
+    # payload_parser = BridgeApi::SyntaxParser::PayloadParser.new bridge.environment_variables
+    #
+    # payload_parser.parse(
+    #  incoming_payload_from_service_a,
+    #  custom_user_payload
+    # ) # => Hash(String, String) where $payload & $env are replaced with their respective values
+    # ```
     class PayloadParser
       include EnvironmentVariables
       include Interfaces::PayloadParser

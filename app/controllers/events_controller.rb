@@ -28,9 +28,7 @@ class EventsController < ApplicationController
   def create
     event = create_event_object(create_data_object, find_bridge)
     event.save!
-    # EventWorker.perform_async(event.id)
-    # TODO: Remove
-    EventWorker.new.perform(event.id)
+    EventWorker.perform_async(event.id)
     render json: {}, status: 202 # Accepted (asynchronous processing)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'a bridge by that id was not found' }, status: 400

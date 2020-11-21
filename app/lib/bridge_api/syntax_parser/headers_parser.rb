@@ -1,41 +1,23 @@
 # frozen_string_literal: true
 
-# This class parses user defined headers & payloads into the values we expect
-# to send to the outbound service.
-#
-# Example:
-#
-# ```ruby
-# custom_user_payload = {
-#   'hello' => '$payload.top_level_key',
-#   'environment_variable' => '$env.API_KEY',
-#   'did_you' => '$payload.nested_key_1.nested_key_2.nested_key_3'
-# }
-#
-# incoming_request_from_service_a = {
-#   'top_level_key' => 'world',
-#   'nested_key_1' => {
-#     'nested_key_2' => {
-#       'nested_key_3' => 'make it!'
-#     }
-#   }
-# }
-#
-# bridge = Bridge.where(user_id: @current_user.id)
-#
-# syntax_parser = SyntaxParser.new(bridge)
-#
-# syntax_parser.parse_payload(
-#  incoming_request_from_service_a,
-#  custom_user_payload
-# ) # => Hash(String, String) where $payload & $env are replaced with their respective values
-#
-# syntax_parser.parse_headers # => Array(Hash(String, String)) where $env is
-# replaced with decrypted environment variable value
-# ```
 module BridgeApi
   module SyntaxParser
-    # TODO: Doc
+    # This class parses user defined headers & payloads into the values we expect
+    # to send to the outbound service.
+    #
+    # Example:
+    #
+    # ```ruby
+    # request = Net::Http::Post.new URI('http://example.com/index.html?count=10')
+    #
+    # bridge = Bridge.where(user_id: @current_user.id)
+    #
+    # headers_parser = BridgeApi::SyntaxParser::HeadersParser.new bridge.environment_variables
+    #
+    # headers_parser.parse(bridge.headers) do |key, value|
+    #   request[key] = value
+    # end
+    # ```
     class HeadersParser
       include EnvironmentVariables
       include Interfaces::HeadersParser
@@ -63,13 +45,21 @@ module BridgeApi
       attr_reader :environment_variables,
                   :headers
 
-      # TODO: Doc
+      # Iterates over headers, yields to a block passing in the header key &
+      # parsed value if parsing is required.
+      #
+      # @param [Proc] block
       def parse_headers!(block)
-        headers.each { |header| block.call(header.key, safe_value(header.value)) }
+        headers.each { |header| block.call(header.key, parse_value(header.value)) }
       end
 
-      # TODO: Doc
-      def safe_value(value)
+      # Replaces a `$env.API_KEY` string with the decrypted
+      # EnvironmentVariable value.
+      #
+      # @param [String] value
+      #
+      # @return [String]
+      def parse_value(value)
         if value.include?('$env')
           fetch_environment_variable(value)
         else

@@ -3,7 +3,24 @@
 module BridgeApi
   module Http
     # Handles formatting requests & responses. Accepts a deconstructor
-    # to aid in formatting.
+    # to remove sensitive headers.
+    #
+    # Example:
+    #
+    # ```ruby
+    # event = Event.find 1
+    # deconstructor = BridgeApi::Http::Deconstructor.new event.bridge.headers
+    # formatter = BridgeApi::Http::Formatter.new deconstructor
+    # uri = URI('http://example.com/some_path?query=string')
+    #
+    # Net::HTTP.start(uri.host, uri.port) do |http|
+    #   request = Net::HTTP::Get.new uri
+    #   response = http.request request # Net::HTTPResponse object
+    #   formatter.format! event, request, response
+    # resuce StandardError => e
+    #   formatter.format_error! event, request, e
+    # end
+    # ```
     class Formatter
       include Interfaces::Formatter
 
@@ -12,8 +29,8 @@ module BridgeApi
         @deconstructor = deconstructor
       end
 
-      # Mutates the event object by storing a formatted request inside
-      # data.
+      # Mutates the event object by storing a formatted request
+      # & response inside `event.data`
       #
       # @param [Event] event
       # @param [Net::HTTP] req
@@ -28,8 +45,8 @@ module BridgeApi
         event.data = data.to_json
       end
 
-      # Mutates the event object by storing a formatted request inside
-      # data.
+      # Mutates the event object by storing a formatted request
+      # & error inside `event.data`.
       #
       # @param [Event] event
       # @param [Net::HTTP] req
@@ -48,7 +65,11 @@ module BridgeApi
 
       attr_reader :deconstructor
 
+      # Formats the response without saving the entire object.
+      #
       # @param [Net::HTTPResponse] res
+      #
+      # @return [Hash(String, To many unions)]
       def formatted_response(response)
         {
           dateTime: DateTime.now.utc,
@@ -59,7 +80,11 @@ module BridgeApi
         }
       end
 
-      # @param [Net::HTTP] req
+      # Formats the request without saving the entire object.
+      #
+      # @param [Net::HTTPResponse] req
+      #
+      # @return [Hash(Symbol, To many unions)]
       def formatted_request(request)
         {
           payload: JSON.parse(request.body),
@@ -71,6 +96,8 @@ module BridgeApi
       end
 
       # @param [StandardError] error
+      #
+      # @return [Hash(Symbol, String)]
       def formatted_error(error)
         { message: error.message }
       end

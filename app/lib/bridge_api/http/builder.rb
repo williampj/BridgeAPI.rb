@@ -2,16 +2,27 @@
 
 module BridgeApi
   module Http
-    # TODO: Parser
-
-    # Handles building a HTTP Request object
+    # Handles building a HTTP Request object. Will parse user defined payloads
+    # and headers into expected values. Accepts custom parsers for extending.
+    #
+    # Example:
+    #
+    # ```ruby
+    # event = Event.find(1)
+    #
+    # handler = BridgeApi::Http::Handler.new event
+    # builder = BridgeApi::Http::Builder.new handler, handler.payload_parser, handler.headers_parser
+    #
+    # builder.generate # => returns an Tuple containing Net::Http & Net::Http::{user_request_type} objects
+    # ```
     class Builder
       SCHEME = 'https://'
 
       include Interfaces::Builder
 
-      # TODO
-      # @param [Bridge] bridge - The bridge that event belongs to
+      # @param [BridgeApi::Http::Handler] request_handler - Used for delegation
+      # @param [BridgeApi::SyntaxParser::Interfaces::PayloadParser] payload_parser
+      # @param [BridgeApi::SyntaxParser::Interfaces::HeadersParser] headers_parser
       def initialize(request_handler, payload_parser, headers_parser)
         @request_handler = request_handler
         @payload_parser = payload_parser
@@ -44,7 +55,7 @@ module BridgeApi
 
       def http_request
         @request = net_http_request(uri)
-        parse_headers
+        parse_headers!
         request.body = parsed_payload.to_json
 
         request
@@ -58,7 +69,7 @@ module BridgeApi
       end
 
       # Sets the user defined headers into the `request` object
-      def parse_headers
+      def parse_headers!
         headers_parser.parse(headers) do |key, value|
           request[key] = value
         end

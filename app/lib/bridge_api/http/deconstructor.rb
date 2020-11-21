@@ -5,6 +5,27 @@ module BridgeApi
     # Deconstructs the request headers. Replaces
     # any headers that contain environment variables with
     # placeholder values to prevent data leakage.
+    #
+    # Example:
+    #
+    # ```ruby
+    # event = Event.find 1
+    # deconstructor = BridgeApi::Http::Deconstructor.new event.bridge.headers
+    # safe_headers = []
+    #
+    # request = Net::HTTP.start(uri.host, uri.port) do |http|
+    #   request = Net::HTTP::Get.new uri
+    #   set_your_decrypted_headers(request)
+    #   request
+    # end
+    #
+    # req.each_header do |key, value|
+    #   save_headers << {
+    #     key: key,
+    #     value: deconstructor.deconstruct(key, value)
+    #   }
+    # end
+    # ```
     class Deconstructor
       include Interfaces::Deconstructor
 
