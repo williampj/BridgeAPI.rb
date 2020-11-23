@@ -10,7 +10,7 @@ class EventWorker
 
   attr_accessor :retry_count
 
-  def perform(event_id, _retries = 0)
+  def perform(event_id)
     @event = Event.includes(:bridge).find(event_id)
     request_handler.execute
     event.complete!
