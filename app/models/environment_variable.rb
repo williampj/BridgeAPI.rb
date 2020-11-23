@@ -11,7 +11,7 @@ class EnvironmentVariable < ApplicationRecord
   delegate :encrypt_and_sign, :decrypt_and_verify, to: :encryptor
 
   KEY = ActiveSupport::KeyGenerator.new(
-    Rails.application.secrets.secret_key_base
+    ENV.fetch('SECRET_KEY_BASE') || Rails.application.secrets.secret_key_base
   ).generate_key(
     ENV.fetch('ENCRYPTION_KEY_SALT'),
     ActiveSupport::MessageEncryptor.key_len
