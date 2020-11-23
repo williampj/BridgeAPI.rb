@@ -90,7 +90,7 @@ module BridgeApi
       #
       # @return [JSON]
       def unparsed_payload
-        @unparsed_payload ||= data[test_env? ? 'test_payload' : 'payload']
+        @unparsed_payload ||= data['payload']
       end
 
       # Ensures the scheme used is using TSL
@@ -128,13 +128,6 @@ module BridgeApi
       # @return [ActiveRecord::Relation(Header)]
       def headers
         @headers ||= bridge.headers
-      end
-
-      # Checks if this request is a test event
-      #
-      # @return [Bool]
-      def test_env?
-        event.test
       end
     end
   end
