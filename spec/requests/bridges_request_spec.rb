@@ -35,7 +35,6 @@ RSpec.describe 'Bridges', type: :request do
       other_bridge.save!
 
       get bridges_path, headers: authenticated_token
-
       expect(response).to be_successful
       expect(response.body).to_not include other_bridge.title
       expect(response.body).to include subject.title
