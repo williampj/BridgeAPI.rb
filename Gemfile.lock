@@ -221,7 +221,7 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
-  bootsnap (>= 1.4.2)
+  bootsnap (>= 1.5.0)
   byebug
   factory_bot_rails
   jbuilder (~> 2.7)

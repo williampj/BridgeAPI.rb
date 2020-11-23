@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2020_11_21_142638) do
+=======
+ActiveRecord::Schema.define(version: 2020_11_20_084233) do
+>>>>>>> 37221aa57aa7ae18a799f9d09a8f33a8acfc006e
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,6 +30,7 @@ ActiveRecord::Schema.define(version: 2020_11_21_142638) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "user_id", null: false
+    t.boolean "active", default: true
     t.index ["inbound_url"], name: "index_bridges_on_inbound_url", unique: true
     t.index ["user_id"], name: "index_bridges_on_user_id"
   end

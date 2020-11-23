@@ -52,7 +52,7 @@ bridge2.environment_variables << EnvironmentVariable.create(key: 'database_passw
 bridge2.headers << Header.create(key: 'X_API_KEY', value: 'returntheslab')
 bridge2.headers << Header.create(key: 'Authentication', value: 'Bearer *************')
 
-# 5.times do
-#   bridge.events << Event.create(completed: false, outbound_url: bridge.outbound_url, inbound_url: 'bridgeapi.com/249634', data: '', status_code: 300)
-#   bridge2.events << Event.create(completed: false, outbound_url: bridge2.outbound_url, inbound_url: 'bridgeapi.com/746353', data: '', status_code: 302)
-# end
+5.times do
+  bridge.events.create(completed: false, outbound_url: 'ip.jsontest.com', inbound_url: 'ip.jsontest.com', data: '{"inbound":{"payload":{"FirstName":"Lee","LastName":"Oswald","UserName":"GrassyKnoll","Password":{"nested":"magic bullet"},"Email":"kgb63@yandex.ru"},"dateTime":"2020-11-20T02:02:55.745Z","ip":"::1","contentLength":152},"outbound":[{"request":{"payload":{"FirstName":"Lee","LastName":"Oswald","UserName":"GrassyKnoll","Password":{"nested":"magic bullet"},"Email":"kgb63@yandex.ru"},"dateTime":"2020-11-20T02:02:55.832Z","contentLength":7},"response":{"dateTime":"2020-11-20T02:02:55.882Z","statusCode":"200","message":"OK","size":7,"payload":{"ip":"153.33.111.24"}}}]}', status_code: 300)
+  bridge2.events.create(completed: false, outbound_url: 'ip.jsontest.com', inbound_url: 'ip.jsontest.com', data: '{"inbound":{"payload":{"FirstName":"Billy","LastName":"Bob","UserName":"Hitman","Password":{"nested":"badaboom"},"Email":"agag@av.ru"},"dateTime":"2020-10-25T02:10:55.745Z","ip":"::2","contentLength":152},"outbound":[{"request":{"payload":{"FirstName":"Lee","LastName":"Oswald","UserName":"GrassyKnoll","Password":{"nested":"magic bullet"},"Email":"kgb63@yandex.ru"},"dateTime":"2020-11-20T02:02:55.832Z","contentLength":7},"response":{"dateTime":"2020-11-20T02:02:55.882Z","statusCode":"200","message":"OK","size":7,"payload":{"ip":"153.33.111.24"}}}]}', status_code: 302)
+end
