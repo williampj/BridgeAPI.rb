@@ -1,9 +1,6 @@
 require_relative './spec_helper'
 
 RSpec.describe EventWorker, type: :worker do
-  let(:time) { (Time.zone.today + 6.hours).to_datetime }
-  let(:scheduled_job) { described_class.perform_at(time, 'Awesome', true) }
-
   # it 'Event jobs are enqueued in the scheduled queue' do
   #   described_class.perform_async
   #   assert_equal :scheduled, described_class.queue
@@ -15,5 +12,7 @@ RSpec.describe EventWorker, type: :worker do
   #   end.to change(described_class.jobs, :size).by(1)
   # end
 
-  pending 'EventWorker Specs'
+  pending 'can process an event'
+  pending 'can retry 3 times'
+  pending 'can clean up when errors are raised'
 end
