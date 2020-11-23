@@ -6,11 +6,12 @@ require_relative '../lib/sidekiq/large_status_code'
 class EventWorker
   include Sidekiq::Worker
 
+  attr_writer :request_handler
+
   attr_accessor :retry_count
 
   def perform(event_id, _retries = 0)
-    event = Event.includes(:bridge).find(event_id)
-    request_handler = ::BridgeApi::Http::RequestHandler.new(event)
+    @event = Event.includes(:bridge).find(event_id)
     request_handler.execute
     event.complete!
   rescue StandardError => e
@@ -21,5 +22,13 @@ class EventWorker
     # TODO: We need filter error messages. ArgumentError and our stuff can be ignored but
     # should we really tell users "StandardError" if their service replied with 404?
     raise StandardError
+  end
+
+  private
+
+  attr_reader :event
+
+  def request_handler
+    @request_handler ||= ::BridgeApi::Http::RequestHandler.new(event)
   end
 end
