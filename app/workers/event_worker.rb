@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/http'
-require_relative '../lib/exceptions/large_status_code'
+require_relative '../lib/sidekiq/large_status_code'
 
 class EventWorker
   include Sidekiq::Worker
