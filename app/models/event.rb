@@ -84,8 +84,8 @@ class Event < ApplicationRecord
 
   # TODO: Pass in bridge (or urls) to prevent db hit
   def set_urls
-    self.inbound_url = bridge.inbound_url
-    self.outbound_url = bridge.outbound_url
+    self.inbound_url = bridge&.inbound_url
+    self.outbound_url = bridge&.outbound_url
   end
 
   def data_json_object

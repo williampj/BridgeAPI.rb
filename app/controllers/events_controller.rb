@@ -27,13 +27,15 @@ class EventsController < ApplicationController
   end
 
   def create
-    event = create_event_object(create_data_object, find_bridge)
+    event = create_event(find_bridge)
     if event.save
       EventWorker.perform_async(event.id)
       render json: {}, status: 202 # Accepted
     else
       render json: { error: 'Invalid parameters' }, status: 400 # Bad Request
     end
+  rescue JSON::ParserError
+    render json: { error: 'Invalid request. Payload must be in JSON' }, status: 400 # Bad Request
   end
 
   private
@@ -48,11 +50,11 @@ class EventsController < ApplicationController
               elsif event_params[:event_id]
                 Event.where(bridge_id: find_event&.bridge_id).order(completed_at: :desc).limit(100)
               else
-                []
+                [] # Prevent nil
               end
   end
 
-  def create_data_object
+  def data
     {
       'inbound' => {
         'payload' => JSON.parse(request.body.read),
@@ -64,7 +66,7 @@ class EventsController < ApplicationController
     }
   end
 
-  def create_event_object(data, bridge)
+  def create_event(bridge)
     Event.new(
       data: data.to_json,
       bridge_id: bridge&.id,

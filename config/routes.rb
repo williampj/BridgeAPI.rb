@@ -11,7 +11,8 @@ Rails.application.routes.draw do
   resources :headers, :environment_variables, only: :destroy
 
   post 'login', to: 'sessions#create'
-  post 'events', to: 'events#create'
+
+  post 'events/:bridge_id', to: 'events#create'
   get 'events', to: 'events#index'
   get 'events/:event_id', to: 'events#show'
   delete 'events/:event_id', to: 'events#destroy'
