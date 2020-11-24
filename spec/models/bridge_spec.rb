@@ -30,7 +30,7 @@ RSpec.describe Bridge, type: :model do
   end
 
   it 'is invalid without a method' do
-    subject.method = nil
+    subject.http_method = nil
     expect(subject).to_not be_valid
   end
 
