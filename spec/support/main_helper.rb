@@ -4,7 +4,7 @@ def random_email
   local = []
   8.times { |_| local.push(('a'..'z').to_a.sample) }
   domain = ['aol.com', 'nsa.gov', 'jubii.dk', 'kreml.ru', 'hotmail.com', 'netscape.com'][rand(6)]
-  "#{local.join('')}@#{domain}"
+  "#{local.join}@#{domain}"
 end
 
 module MainHelper
