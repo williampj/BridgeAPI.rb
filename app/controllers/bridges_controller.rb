@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 class BridgesController < ApplicationController
-  before_action :authorize_request
+  # before_action :authorize_request
   before_action :set_bridge, except: %i[index create]
 
   def index
-    @bridges = @current_user.bridges.all.map(&:add_event_info)
-
-    render_message message: { bridges: @bridges }
+    ContactUsMailer.with(user: User.find(1)).contact_us.deliver!
+    render_message message: { bridges: Bridge.all }
   end
 
   def show

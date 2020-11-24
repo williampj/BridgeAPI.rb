@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class ContactUsMailer < ApplicationMailer
   default from: 'angelbates5@yahoo.com'
- 
+
   def contact_us
     @user = params[:user]
     @url  = 'http://example.com/login'
