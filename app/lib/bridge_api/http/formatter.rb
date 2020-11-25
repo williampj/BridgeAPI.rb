@@ -43,6 +43,7 @@ module BridgeApi
                                 'response' => formatted_response(res)
                               })
         event.data = data.to_json
+        event.status_code = res.code
       end
 
       # Mutates the event object by storing a formatted request
