@@ -3,6 +3,8 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
+  get '/', to: 'health_check#index'
+
   resource :user, except: %i[new edit]
   resources :bridges do
     patch 'activate'
