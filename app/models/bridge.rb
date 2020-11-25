@@ -48,9 +48,7 @@ class Bridge < ApplicationRecord
   accepts_nested_attributes_for :headers, :environment_variables
 
   def add_event_info
-    completed_at = events&.filter(&:completed_at)
-                         &.min { |a, b| b.completed_at <=> a.completed_at }
-                         &.fetch(:completed_at)
+    completed_at = events.where(completed: true)&.order(completed_at: :desc)&.first&.completed_at
     attributes.merge({ 'eventCount' => events.count, 'completedAt' => completed_at || '' })
   end
 
