@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   resources :headers, :environment_variables, only: :destroy
 
   post 'events/(:id)/abort', to: 'events#abort'
-  patch 'events/:bridge_id', to: 'events#create'
+  post 'events/:bridge_id', to: 'events#create'
   resources :events, except: %i[new edit create]
 
   post 'login', to: 'sessions#create'

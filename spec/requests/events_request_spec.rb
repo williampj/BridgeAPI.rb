@@ -1,13 +1,36 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/testing'
+
+Sidekiq::Testing.fake!
 
 RSpec.describe 'EventsController', type: :request do
+  let(:event) { create :event }
+
   before do
-    @event = create(:event)
-    @bridge = @event.bridge
+    @bridge = event.bridge
     @user = @bridge.user
     @token = JsonWebToken.encode(user_id: @user.id)
+  end
+
+  describe 'PATCH abort' do
+    it 'aborts all ongoing events' do
+      worker = EventWorker.new
+      req_handler = ::BridgeApi::Http::RequestHandler.new event
+      req_handler.formatter = MockFailFormatter.new
+      worker.request_handler = req_handler
+      event2 = create :event
+      event3 = create :event
+
+      expect do
+        worker.perform event.id
+        worker.perform event2.id
+        worker.perform event3.id
+      end.to raise_error StandardError
+
+      expect(EventWorker.jobs.count).to eq 3
+    end
   end
 
   describe 'GET index' do
@@ -17,7 +40,7 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'returns 200 with event_id' do
-      get '/events', headers: authenticated_token, params: { event_id: @event.id }
+      get '/events', headers: authenticated_token, params: { event_id: event.id }
       expect(response).to have_http_status(:ok)
     end
 
@@ -35,14 +58,14 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'requires JWT' do
-      get '/events', params: { event_id: @event.id }
+      get '/events', params: { event_id: event.id }
       expect(response).to have_http_status(401)
     end
   end
 
   describe 'GET show' do
     it 'returns 200 with bridge_id' do
-      get "/events/#{@event.id}", headers: authenticated_token, params: { event_id: @event.id }
+      get "/events/#{event.id}", headers: authenticated_token, params: { event_id: event.id }
       expect(response).to have_http_status(:ok)
     end
 
@@ -55,14 +78,14 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'requires JWT' do
-      get "/events/#{@event.id}", params: { event_id: @event.id }
+      get "/events/#{event.id}", params: { event_id: event.id }
       expect(response).to have_http_status(401)
     end
   end
 
   describe 'POST destroy' do
     it 'returns 204' do
-      delete "/events/#{@event.id}", headers: authenticated_token, params: { event_id: @event.id }
+      delete "/events/#{event.id}", headers: authenticated_token, params: { event_id: event.id }
       expect(response).to have_http_status(204)
     end
 
@@ -75,17 +98,25 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'requires JWT' do
-      delete "/events/#{@event.id}", params: { event_id: @event.id }
+      delete "/events/#{event.id}", params: { event_id: event.id }
       expect(response).to have_http_status(401)
     end
   end
 
   describe 'POST create' do
-    pending 'creates a job'
+    it 'creates a job' do
+      headers = { 'CONTENT_TYPE' => 'application/json' }
+      expect(EventWorker.jobs.count).to eq 0
+
+      post "/events/#{@bridge.id}", params: '{ "data": { "hello": "world" } }', headers: headers
+
+      expect(EventWorker.jobs.count).to eq 1
+      expect(response).to have_http_status(202)
+    end
 
     it 'returns 400 with invalid IDs' do
       headers = { 'CONTENT_TYPE' => 'application/json' }
-      patch '/events/128371283', params: '{ "data": { "hello": "world" } }', headers: headers
+      post '/events/128371283', params: '{ "data": { "hello": "world" } }', headers: headers
       expect(response).to have_http_status(400)
     end
   end
