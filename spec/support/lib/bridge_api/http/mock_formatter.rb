@@ -18,7 +18,7 @@ class MockFailFormatter
   def format_error!(event, request, error)
     ::BridgeApi::Http::Formatter.new(
       ::BridgeApi::Http::Deconstructor.new(
-        _event.bridge.headers
+        event.bridge.headers
       )
     ).format_error! event, request, error
   end

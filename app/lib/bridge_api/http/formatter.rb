@@ -60,6 +60,7 @@ module BridgeApi
                                 'response' => formatted_error(error)
                               })
         event.data = data.to_json
+        event
       end
 
       private

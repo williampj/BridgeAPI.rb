@@ -15,7 +15,7 @@ class EventWorker
   rescue StandardError => e
     # We can skip clean up on error `Sidekiq::LargeStatusCode` because we did
     # recieve a response and it was saved properly.
-    request_handler.cleanup(e) unless e.instance_of? Sidekiq::LargeStatusCode
+    event = request_handler.cleanup(e) unless e.instance_of? Sidekiq::LargeStatusCode
 
     return event.complete! if retry_count&.>= @event.bridge.retries
 

@@ -11,39 +11,55 @@ RSpec.describe EventWorker, type: :worker do
   #   assert_equal :scheduled, described_class.queue
   # end
 
-  it 'goes into the jobs array for testing environment' do
-    expect do
-      described_class.perform_async
-    end.to change(described_class.jobs, :size).by(1)
-  end
+  # it 'goes into the jobs array for testing environment' do
+  #   expect do
+  #     described_class.perform_async
+  #   end.to change(described_class.jobs, :size).by(1)
+  # end
 
   before do
-    @event = create :event
-    @bridge = Bridge.find @event.bridge.id
+    @bridge = Bridge.find event.bridge.id
 
     stub_request(:post, 'https://myfakeoutbound.com/')
       .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
       .to_return(status: 200, body: { data: 'stubbed response' }.to_json, headers: {})
   end
 
-  it 'can process an event' do
-    expect(Event.find(@event.id).completed).to eq false
+  context 'Event worker' do
+    let(:event) { create :event }
 
-    EventWorker.new.perform @event.id
+    it 'can process an event' do
+      expect(event.reload.completed).to eq false
 
-    expect(Event.find(@event.id).completed).to eq true
-  end
+      EventWorker.new.perform event.id
 
-  pending 'can retry 3 times'
+      expect(event.reload.completed).to eq true
+    end
 
-  it 'can clean up when errors are raised' do
-    worker = EventWorker.new
-    req_handler = ::BridgeApi::Http::RequestHandler.new @event
-    req_handler.formatter = MockFailFormatter.new
-    worker.request_handler = req_handler
+    it 'can retry 3 times' do
+      worker = EventWorker.new
+      req_handler = ::BridgeApi::Http::RequestHandler.new event
+      req_handler.formatter = MockFailFormatter.new
+      worker.request_handler = req_handler
 
-    expect do
-      worker.perform @event.id
-    end.to raise_error StandardError
+      expect do
+        worker.perform event.id
+      end.to raise_error StandardError
+
+      expect(EventWorker.jobs.count).to eq 1
+      # TODO: - Need to fix retry_count bug
+    end
+
+    it 'can clean up when errors are raised' do
+      worker = EventWorker.new
+      req_handler = ::BridgeApi::Http::RequestHandler.new event
+      req_handler.formatter = MockFailFormatter.new
+      worker.request_handler = req_handler
+
+      expect do
+        worker.perform event.id
+      end.to raise_error StandardError
+      expect(JSON.parse(event.reload.data)['outbound'][0]['response']).to eq({ 'message' => 'StandardError' })
+    end
   end
 end
