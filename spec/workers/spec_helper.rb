@@ -5,6 +5,9 @@ require 'sidekiq/testing'
 
 Sidekiq::Testing.fake!
 
+require 'simplecov'
+SimpleCov.start
+
 # TODO
 # RSpec::Sidekiq.configure do |config|
 #   # Clears all job queues before each example
