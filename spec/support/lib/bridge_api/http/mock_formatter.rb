@@ -15,7 +15,11 @@ class MockFailFormatter
     raise StandardError
   end
 
-  def cleanup(_event, _request, _error)
-    true
+  def format_error!(event, request, error)
+    ::BridgeApi::Http::Formatter.new(
+      ::BridgeApi::Http::Deconstructor.new(
+        _event.bridge.headers
+      )
+    ).format_error! event, request, error
   end
 end
