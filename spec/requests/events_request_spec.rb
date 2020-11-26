@@ -85,7 +85,7 @@ RSpec.describe 'EventsController', type: :request do
 
     it 'returns 400 with invalid IDs' do
       headers = { 'CONTENT_TYPE' => 'application/json' }
-      post '/events/128371283', params: '{ "data": { "hello": "world" } }', headers: headers
+      patch '/events/128371283', params: '{ "data": { "hello": "world" } }', headers: headers
       expect(response).to have_http_status(400)
     end
   end
