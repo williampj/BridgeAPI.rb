@@ -52,12 +52,13 @@ class EventsController < ApplicationController
   def remove_job(job)
     id = JSON.parse(job.value)['args'].first
     event = Event.find id
+
     event.update completed: true
     job.delete
   end
 
   def job_selected(id)
-    (id == Integer(params[:id] || -1)) || params[:id].nil?
+    (id == params[:id]&.to_i) || params[:id].nil?
   end
 
   def event_params
