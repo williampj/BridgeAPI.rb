@@ -43,19 +43,13 @@ class BridgesController < ApplicationController
   end
 
   def activate
-    if @bridge.update active: true
-      render_message
-    else
-      render_message status: :bad_request
-    end
+    @bridge.update active: true
+    render_message
   end
 
   def deactivate
-    if @bridge.update active: false
-      render_message
-    else
-      render_message status: :bad_request
-    end
+    @bridge.update active: false
+    render_message
   end
 
   protected
