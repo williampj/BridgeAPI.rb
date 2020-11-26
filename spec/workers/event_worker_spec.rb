@@ -18,8 +18,6 @@ RSpec.describe EventWorker, type: :worker do
   # end
 
   before do
-    @bridge = Bridge.find event.bridge.id
-
     stub_request(:post, 'https://myfakeoutbound.com/')
       .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
       .to_return(status: 200, body: { data: 'stubbed response' }.to_json, headers: {})
