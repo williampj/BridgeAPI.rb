@@ -27,7 +27,7 @@ RSpec.describe EventWorker, type: :worker do
     let(:event) { create :event }
 
     it 'can process an event' do
-      expect(event.reload.completed).to eq false
+      expect(event.completed).to eq false
 
       EventWorker.new.perform event.id
 
@@ -57,7 +57,7 @@ RSpec.describe EventWorker, type: :worker do
       expect do
         worker.perform event.id
       end.to raise_error StandardError
-      expect(JSON.parse(event.reload.data)['outbound'][0]['response']).to eq({ 'message' => 'StandardError' })
+      expect(JSON.parse(event.data)['outbound'][0]['response']).to eq({ 'message' => 'StandardError' })
     end
   end
 end
