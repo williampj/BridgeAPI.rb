@@ -97,3 +97,14 @@ RSpec.configure do |config|
   # TODO: Maybe
   # config.use_transactional_fixtures = true
 end
+
+require 'simplecov'
+SimpleCov.start
+
+SimpleCov.start do
+  add_group 'Controllers', 'app/controllers'
+  add_group 'Models', 'app/models'
+  add_group 'Request Handling', 'app/lib/bridge_api/http'
+  add_group 'Syntax Parser', 'app/lib/bridge_api/syntax_parser'
+  add_group 'Workers', 'app/workers'
+end
