@@ -27,6 +27,11 @@ RSpec.describe EventWorker, type: :worker do
     EventWorker.new.perform event.id
 
     expect(event.reload.completed).to eq true
+
+    data = JSON.parse(event.data)
+    expect(data['outbound'].first['response']['payload']).to eq({ 'data' => 'stubbed response' })
+    expect(data['outbound'].first['response']['statusCode']).to eq '200'
+    expect(data['outbound'].first['response']['message']).to eq ''
   end
 
   it 'can retry when errors are raised' do
@@ -54,7 +59,6 @@ RSpec.describe EventWorker, type: :worker do
     end.to raise_error StandardError
 
     data = JSON.parse(event.data)
-
     expect(data['outbound'].first['response']).to eq({ 'message' => 'StandardError' })
     expect(data['outbound'].first.keys).to eq %w[request response]
     expect(data['outbound'].first['request'].keys).to eq %w[payload dateTime contentLength uri headers]
