@@ -38,7 +38,27 @@ class EventsController < ApplicationController
     render json: { error: 'Invalid request. Payload must be in JSON' }, status: 400 # Bad Request
   end
 
+  def abort
+    retries = Sidekiq::RetrySet.new.select
+
+    retries.each do |job|
+      id = JSON.parse(job.value)['args'].first
+      remove_job job if job_selected id
+    end
+  end
+
   private
+
+  def remove_job(job)
+    id = JSON.parse(job.value)['args'].first
+    event = Event.find id
+    event.update completed: true
+    job.delete
+  end
+
+  def job_selected(id)
+    (id == Integer(params[:id] || -1)) || params[:id].nil?
+  end
 
   def event_params
     params.permit(:id, :bridge_id, :event_id, :test)
