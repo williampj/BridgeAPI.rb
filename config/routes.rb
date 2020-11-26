@@ -6,17 +6,19 @@ Rails.application.routes.draw do
   get '/', to: 'health_check#index'
 
   resource :user, except: %i[new edit]
+
   resources :bridges do
     patch 'activate'
     patch 'deactivate'
   end
+
   resources :headers, :environment_variables, only: :destroy
+
+  post 'events/(:id)/abort', to: 'events#abort'
+  post 'events/:bridge_id', to: 'events#create'
+  resources :events, except: %i[new edit create]
 
   post 'login', to: 'sessions#create'
 
-  post 'events/:bridge_id', to: 'events#create'
-  get 'events', to: 'events#index'
-  get 'events/:event_id', to: 'events#show'
-  delete 'events/:event_id', to: 'events#destroy'
   mount Sidekiq::Web => '/sidekiq'
 end
