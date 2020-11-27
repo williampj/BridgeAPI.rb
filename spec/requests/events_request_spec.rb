@@ -20,8 +20,8 @@ RSpec.describe 'EventsController', type: :request do
       req_handler = ::BridgeApi::Http::RequestHandler.new event
       req_handler.formatter = MockFailFormatter.new
       worker.request_handler = req_handler
-      event2 = create :event
-      event3 = create :event
+      event2 = build :event
+      event3 = build :event
 
       expect do
         worker.perform event.id

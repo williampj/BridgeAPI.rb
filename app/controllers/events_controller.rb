@@ -42,8 +42,7 @@ class EventsController < ApplicationController
     retries = Sidekiq::RetrySet.new.select
 
     retries.each do |job|
-      id = JSON.parse(job.value)['args'].first
-      remove_job job if job_selected id
+      remove_job job if job_selected job
     end
   end
 
@@ -57,8 +56,10 @@ class EventsController < ApplicationController
     job.delete
   end
 
-  def job_selected(id)
-    (id == params[:id]&.to_i) || params[:id].nil?
+  def job_selected(job)
+    event_id = JSON.parse(job.value)['args'].first
+    bridge_id = Event.find(event_id).bridge.id
+    event_id == params[:event_id]&.to_i || bridge_id == params[:bridge_id]&.to_i
   end
 
   def event_params
