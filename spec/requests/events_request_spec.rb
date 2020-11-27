@@ -18,38 +18,6 @@ RSpec.describe 'EventsController', type: :request do
       .to_return(status: 200, body: { data: 'stubbed response' }.to_json, headers: {})
   end
 
-  describe 'PATCH abort' do
-    it 'aborts all ongoing events' do
-      # worker = EventWorker.new
-      # req_handler = ::BridgeApi::Http::RequestHandler.new event
-      # req_handler.formatter = MockFailFormatter.new
-      # worker.request_handler = req_handler
-
-      # event2 = create :event
-      # event3 = create :event
-      # byebug
-
-      # expect do
-      #   worker.perform event.id
-      #   # worker.perform event2.id
-      #   # worker.perform event3.id
-      # end.to raise_error StandardError
-      # byebug
-
-      # expect(EventWorker.jobs.count).to eq 3
-      worker = EventWorker.new
-      req_handler = ::BridgeApi::Http::RequestHandler.new event
-      req_handler.formatter = MockFailFormatter.new
-      worker.request_handler = req_handler
-  
-      expect do
-        worker.perform event.id
-      end.to raise_error StandardError
-  
-      expect(EventWorker.jobs.count).to eq 1
-    end
-  end
-
   describe 'GET index' do
     it 'returns 200 with bridge_id' do
       get '/events', headers: authenticated_token, params: { bridge_id: @bridge.id }
@@ -135,6 +103,35 @@ RSpec.describe 'EventsController', type: :request do
       headers = { 'CONTENT_TYPE' => 'application/json' }
       post '/events/128371283', params: '{ "data": { "hello": "world" } }', headers: headers
       expect(response).to have_http_status(400)
+    end
+  end
+
+  describe 'PATCH abort' do
+    it 'aborts all events with bridge_id' do
+      Sidekiq::Testing.disable! do
+        headers = { 'CONTENT_TYPE' => 'application/json' }
+
+        expect(Sidekiq::RetrySet.new.select.count).to eq 0
+
+        expect do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          sleep 1
+        end.to change(Sidekiq::RetrySet.new.select, :count).by(3)
+
+        expect(response).to have_http_status(202)
+
+        expect do
+          post "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
+        end.to change(Sidekiq::RetrySet.new.select, :count).by(-3)
+      end
     end
   end
 end
