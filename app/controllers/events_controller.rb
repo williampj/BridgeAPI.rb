@@ -41,8 +41,8 @@ class EventsController < ApplicationController
   def abort
     retries = Sidekiq::RetrySet.new.select
 
-    retries.each do |job|
-      remove_job job if job_selected job
+    retries.each do |current_job|
+      remove_job current_job if job_selected current_job
     end
   end
 

@@ -12,24 +12,41 @@ RSpec.describe 'EventsController', type: :request do
     @bridge = event.bridge
     @user = @bridge.user
     @token = JsonWebToken.encode(user_id: @user.id)
+
+    stub_request(:post, /.*/)
+      .with(headers: { 'Accept' => '*/*', 'User-Agent' => 'Ruby' })
+      .to_return(status: 200, body: { data: 'stubbed response' }.to_json, headers: {})
   end
 
   describe 'PATCH abort' do
     it 'aborts all ongoing events' do
+      # worker = EventWorker.new
+      # req_handler = ::BridgeApi::Http::RequestHandler.new event
+      # req_handler.formatter = MockFailFormatter.new
+      # worker.request_handler = req_handler
+
+      # event2 = create :event
+      # event3 = create :event
+      # byebug
+
+      # expect do
+      #   worker.perform event.id
+      #   # worker.perform event2.id
+      #   # worker.perform event3.id
+      # end.to raise_error StandardError
+      # byebug
+
+      # expect(EventWorker.jobs.count).to eq 3
       worker = EventWorker.new
       req_handler = ::BridgeApi::Http::RequestHandler.new event
       req_handler.formatter = MockFailFormatter.new
       worker.request_handler = req_handler
-      event2 = build :event
-      event3 = build :event
-
+  
       expect do
         worker.perform event.id
-        worker.perform event2.id
-        worker.perform event3.id
       end.to raise_error StandardError
-
-      expect(EventWorker.jobs.count).to eq 3
+  
+      expect(EventWorker.jobs.count).to eq 1
     end
   end
 
