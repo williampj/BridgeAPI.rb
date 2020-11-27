@@ -31,6 +31,17 @@ jobs:
     name: Test
     runs-on: ubuntu-18.04
     services:
+      redis:
+        # Docker Hub image
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      sidekiq:
+        image: sidekiq
       postgres:
         image: postgres:10.8
         env:
@@ -61,6 +72,12 @@ jobs:
         run: |
           bundler exec rails db:create RAILS_ENV=test
           bundler exec rails db:migrate RAILS_ENV=test
+      - name: Start Redis
+        run: |
+          redis-server
+      - name: Start Sidekiq
+        run: |
+          bundle exec sidekiq
       - name: Run tests
         run: bundle exec rspec
       # - name: Upload coverage results
