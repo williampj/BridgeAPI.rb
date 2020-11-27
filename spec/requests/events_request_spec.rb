@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/testing'
+
+Sidekiq::Testing.fake!
 
 RSpec.describe 'EventsController', type: :request do
   before do
@@ -81,7 +84,15 @@ RSpec.describe 'EventsController', type: :request do
   end
 
   describe 'POST create' do
-    pending 'creates a job'
+    it 'creates a job' do
+      headers = { 'CONTENT_TYPE' => 'application/json' }
+      expect(EventWorker.jobs.count).to eq 0
+
+      post "/events/#{@bridge.id}", params: '{ "data": { "hello": "world" } }', headers: headers
+
+      expect(EventWorker.jobs.count).to eq 1
+      expect(response).to have_http_status(202)
+    end
 
     it 'returns 400 with invalid IDs' do
       headers = { 'CONTENT_TYPE' => 'application/json' }
