@@ -30,7 +30,7 @@ class EventsController < ApplicationController
     event = create_event(find_bridge)
     if event.save
       EventWorker.perform_async(event.id)
-      render json: {}, status: 202 # Accepted
+      render json: { id: event.id }, status: 202 # Accepted
     else
       render json: { error: 'Invalid parameters' }, status: 400 # Bad Request
     end
@@ -39,9 +39,13 @@ class EventsController < ApplicationController
   end
 
   def abort
-    events = bridge_id_present ? Event.where(bridge_id: params[:bridge_id]) : Event.find(params[:event_id])
+    events = if bridge_id_present
+               Event.includes(:bridge).where(bridge_id: params[:bridge_id])
+             else
+               Event.includes(:bridge).find(params[:event_id])
+             end
 
-    render_message status: :unprocessable_entity unless events # Bad Request
+    render_message status: :unprocessable_entity unless events_belong_to_user(events) # Bad Request
 
     events.update aborted: true
 
@@ -49,6 +53,14 @@ class EventsController < ApplicationController
   end
 
   private
+
+  def events_belong_to_user(events)
+    if events.is_a? ActiveRecord::Relation
+      events.first.bridge.user_id == @current_user.id
+    else
+      events&.bridge&.user_id == @current_user.id
+    end
+  end
 
   def bridge_id_present
     !!params[:bridge_id]

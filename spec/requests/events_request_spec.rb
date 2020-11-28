@@ -107,7 +107,7 @@ RSpec.describe 'EventsController', type: :request do
   end
 
   describe 'PATCH abort' do
-    it 'aborts all events with bridge_id' do
+    it 'all events with bridge_id' do
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
       expect(EventWorker.jobs.count).to eq 0
@@ -129,6 +129,32 @@ RSpec.describe 'EventsController', type: :request do
         post "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
         EventWorker.drain
       end.to change(EventWorker.jobs, :count).by(-3)
+    end
+
+    it 'an event with event_id' do
+      event_id = nil
+      headers = { 'CONTENT_TYPE' => 'application/json' }
+
+      expect(EventWorker.jobs.count).to eq 0
+
+      expect do
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_id = JSON.parse(response.body)['id']
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+      end.to change(EventWorker.jobs, :count).by(3)
+
+      expect(response).to have_http_status(202)
+      expect do
+        post "/events/abort?event_id=#{event.id}", headers: authenticated_token
+        expect { EventWorker.drain }.to raise_error StandardError
+      end.to change(EventWorker.jobs, :count).by(-1)
     end
   end
 end
