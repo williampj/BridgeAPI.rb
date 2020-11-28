@@ -45,7 +45,7 @@ class EventsController < ApplicationController
                Event.includes(:bridge).find(params[:event_id])
              end
 
-    render_message status: 422 unless events_belong_to_user(events) # unprocessable entity
+    render_message status: 401 unless events_belong_to_user(events) # unauthorized
 
     events.update aborted: true
 
