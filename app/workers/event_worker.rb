@@ -11,7 +11,10 @@ class EventWorker
   attr_accessor :retry_count
 
   def perform(event_id)
-    execute_request(event_id)
+    @event = Event.includes(:bridge).find(event_id)
+    return if @event.aborted
+
+    execute_request
   rescue StandardError => e
     # We can skip clean up on error `Sidekiq::LargeStatusCode` because we did
     # recieve a response and it was saved properly.
@@ -30,8 +33,7 @@ class EventWorker
 
   attr_reader :event
 
-  def execute_request(event_id)
-    @event = Event.includes(:bridge).find(event_id)
+  def execute_request
     request_handler.execute
     event.complete!
   end

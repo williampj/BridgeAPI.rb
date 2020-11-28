@@ -108,30 +108,27 @@ RSpec.describe 'EventsController', type: :request do
 
   describe 'PATCH abort' do
     it 'aborts all events with bridge_id' do
-      Sidekiq::Testing.disable! do
-        headers = { 'CONTENT_TYPE' => 'application/json' }
+      headers = { 'CONTENT_TYPE' => 'application/json' }
 
-        expect(Sidekiq::RetrySet.new.select.count).to eq 0
+      expect(EventWorker.jobs.count).to eq 0
 
-        expect do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
-          sleep 1
-        end.to change(Sidekiq::RetrySet.new.select, :count).by(3)
+      expect do
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+      end.to change(EventWorker.jobs, :count).by(3)
 
-        expect(response).to have_http_status(202)
-
-        expect do
-          post "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
-        end.to change(Sidekiq::RetrySet.new.select, :count).by(-3)
-      end
+      expect(response).to have_http_status(202)
+      expect do
+        post "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
+        EventWorker.drain
+      end.to change(EventWorker.jobs, :count).by(-3)
     end
   end
 end

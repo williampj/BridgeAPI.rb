@@ -39,27 +39,19 @@ class EventsController < ApplicationController
   end
 
   def abort
-    retries = Sidekiq::RetrySet.new.select
+    events = bridge_id_present ? Event.where(bridge_id: params[:bridge_id]) : Event.find(params[:event_id])
 
-    retries.each do |current_job|
-      remove_job current_job if job_selected current_job
-    end
+    render_message status: :unprocessable_entity unless events # Bad Request
+
+    events.update aborted: true
+
+    render_message
   end
 
   private
 
-  def remove_job(job)
-    id = JSON.parse(job.value)['args'].first
-    event = Event.find id
-
-    event.update completed: true
-    job.delete
-  end
-
-  def job_selected(job)
-    event_id = JSON.parse(job.value)['args'].first
-    bridge_id = Event.find(event_id).bridge.id
-    event_id == params[:event_id]&.to_i || bridge_id == params[:bridge_id]&.to_i
+  def bridge_id_present
+    !!params[:bridge_id]
   end
 
   def event_params

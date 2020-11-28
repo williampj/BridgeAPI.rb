@@ -31,15 +31,6 @@ jobs:
     name: Test
     runs-on: ubuntu-18.04
     services:
-      redis:
-        # Docker Hub image
-        image: redis
-        # Set health checks to wait until redis has started
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
       postgres:
         image: postgres:10.8
         env:
@@ -50,12 +41,6 @@ jobs:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      sidekiq:
-        depends_on:
-          - postgres
-          - redis
-        build: .
-        command: bundle exec sidekiq
     steps:
       - name: Install PostgreSQL 11
         run: |
@@ -76,12 +61,6 @@ jobs:
         run: |
           bundler exec rails db:create RAILS_ENV=test
           bundler exec rails db:migrate RAILS_ENV=test
-      - name: Start Redis
-        run: |
-          redis-server
-      - name: Start Sidekiq
-        run: |
-          bundle exec sidekiq
       - name: Run tests
         run: bundle exec rspec
       # - name: Upload coverage results
