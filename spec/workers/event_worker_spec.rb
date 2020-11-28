@@ -35,17 +35,22 @@ RSpec.describe EventWorker, type: :worker do
   end
 
   it 'can retry when errors are raised' do
-    # worker = EventWorker.new
-    # req_handler = ::BridgeApi::Http::RequestHandler.new event
-    # req_handler.formatter = MockFailFormatter.new
-    # worker.request_handler = req_handler
+    event.data = {
+      'inbound' => {
+        'payload' => {
+        },
+        'dateTime' => '2020-11-21T13:59:47.349Z',
+        'ip' => '0.0.0.0',
+        'contentLength' => 101
+      },
+      'outbound' => []
+    }.to_json
+    event.save!
 
-    # expect do
-    #   worker.perform event.id
-    # end.to raise_error StandardError
+    EventWorker.perform_async event.id
 
-    # expect(EventWorker.jobs.count).to eq 1
-    # # TODO: - Need to fix retry_count bug
+    expect(EventWorker.jobs.count).to eq 1
+    # TODO: - Need to fix retry_count bug
   end
 
   it 'can clean up when errors are raised' do
