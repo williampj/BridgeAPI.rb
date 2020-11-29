@@ -40,12 +40,12 @@ class EventsController < ApplicationController
 
   def abort
     events = if bridge_id_present
-               Event.includes(:bridge).where(bridge_id: params[:bridge_id])
+               Event.includes(:bridge).where(bridge_id: params[:bridge_id], "bridges.user_id": @current_user.id)
              else
-               Event.includes(:bridge).find(params[:event_id])
+               Event.includes(:bridge).where(id: params[:event_id], "bridges.user_id": @current_user.id)
              end
 
-    render_message status: 401 unless events_belong_to_user(events) # unauthorized
+    render_message status: 400 unless events # Bad Request
 
     events.update aborted: true, completed: true
 
@@ -53,14 +53,6 @@ class EventsController < ApplicationController
   end
 
   private
-
-  def events_belong_to_user(events)
-    if events.is_a? ActiveRecord::Relation
-      events.first.bridge.user_id == @current_user.id
-    else
-      events&.bridge&.user_id == @current_user.id
-    end
-  end
 
   def bridge_id_present
     !!params[:bridge_id]
