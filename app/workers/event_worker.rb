@@ -11,8 +11,8 @@ class EventWorker
   attr_accessor :retry_count
 
   def perform(event_id)
-    @event = Event.includes(:bridge).find(event_id)
-    return if @event.aborted
+    @event = Event.includes(:bridge).find_by(id: event_id, aborted: false)
+    return unless @event
 
     execute_request
   rescue StandardError => e
