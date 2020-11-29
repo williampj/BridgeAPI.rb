@@ -36,6 +36,7 @@ group :development, :test do
   gem 'pry'
   gem 'rspec-rails', '~> 4.0.1'
   gem 'rubocop'
+  gem 'factory_bot_rails'
 end
 
 group :development do
@@ -46,7 +47,6 @@ group :development do
 end
 
 group :test do
-  gem 'factory_bot_rails'
   # Generate test coverage reports
   gem 'simplecov', require: false
   gem 'webmock'
