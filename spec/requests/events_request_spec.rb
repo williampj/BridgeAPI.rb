@@ -6,10 +6,9 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe 'EventsController', type: :request do
-  let(:event) { create :event }
-
   before do
-    @bridge = event.bridge
+    @event = create(:event)
+    @bridge = @event.bridge
     @user = @bridge.user
     @token = JsonWebToken.encode(user_id: @user.id)
 
@@ -25,7 +24,7 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'returns 200 with event_id' do
-      get '/events', headers: authenticated_token, params: { event_id: event.id }
+      get '/events', headers: authenticated_token, params: { event_id: @event.id }
       expect(response).to have_http_status(:ok)
     end
 
@@ -43,14 +42,14 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'requires JWT' do
-      get '/events', params: { event_id: event.id }
+      get '/events', params: { event_id: @event.id }
       expect(response).to have_http_status(401)
     end
   end
 
   describe 'GET show' do
     it 'returns 200 with bridge_id' do
-      get "/events/#{event.id}", headers: authenticated_token, params: { event_id: event.id }
+      get "/events/#{@event.id}", headers: authenticated_token, params: { event_id: @event.id }
       expect(response).to have_http_status(:ok)
     end
 
@@ -63,14 +62,14 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'requires JWT' do
-      get "/events/#{event.id}", params: { event_id: event.id }
+      get "/events/#{@event.id}", params: { event_id: @event.id }
       expect(response).to have_http_status(401)
     end
   end
 
   describe 'POST destroy' do
     it 'returns 204' do
-      delete "/events/#{event.id}", headers: authenticated_token, params: { event_id: event.id }
+      delete "/events/#{@event.id}", headers: authenticated_token, params: { event_id: @event.id }
       expect(response).to have_http_status(204)
     end
 
@@ -83,7 +82,7 @@ RSpec.describe 'EventsController', type: :request do
     end
 
     it 'requires JWT' do
-      delete "/events/#{event.id}", params: { event_id: event.id }
+      delete "/events/#{@event.id}", params: { event_id: @event.id }
       expect(response).to have_http_status(401)
     end
   end
@@ -160,11 +159,11 @@ RSpec.describe 'EventsController', type: :request do
 
       expect(response).to have_http_status(202)
       expect do
-        post "/events/abort?event_id=#{event.id}", headers: authenticated_token
+        post "/events/abort?event_id=#{@event.id}", headers: authenticated_token
         expect { EventWorker.drain }.to raise_error StandardError
       end.to change(EventWorker.jobs, :count).by(-1)
-      expect(event.reload.completed).to eq true
-      expect(event.aborted).to eq true
+      expect(@event.reload.completed).to eq true
+      expect(@event.aborted).to eq true
     end
   end
 end
