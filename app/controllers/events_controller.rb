@@ -47,7 +47,7 @@ class EventsController < ApplicationController
 
     render_message status: 401 unless events_belong_to_user(events) # unauthorized
 
-    events.update aborted: true
+    events.update aborted: true, completed: true
 
     render_message
   end
