@@ -40,9 +40,11 @@ class EventsController < ApplicationController
 
   def abort
     events = if bridge_id_present
-               Event.includes(:bridge).where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
+               Event.includes(:bridge)
+                    .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
              else
-               Event.includes(:bridge).where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
+               Event.includes(:bridge)
+                    .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
              end
 
     render_message status: 400 unless events # Bad Request
