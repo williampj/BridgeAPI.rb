@@ -66,11 +66,27 @@ class EventsController < ApplicationController
     params.permit(:id, :bridge_id, :event_id, :test)
   end
 
+  def find_by_bridge_id
+    Event.includes(:bridge)
+         .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id)
+         .references(:bridge)
+         .order(completed_at: :desc)
+         .limit(100)
+  end
+
+  def find_without_bridge_id
+    Event.includes(:bridge)
+         .where(bridge_id: find_event&.bridge_id, "bridges.user_id": @current_user.id)
+         .references(:bridge)
+         .order(completed_at: :desc)
+         .limit(100)
+  end
+
   def fetch_events
-    @events = if bridge_id_present
-                Event.where(bridge_id: event_params[:bridge_id]).order(completed_at: :desc).limit(100)
+    @events = if event_params[:bridge_id]
+                find_by_bridge_id
               elsif event_params[:event_id]
-                Event.where(bridge_id: find_event&.bridge_id).order(completed_at: :desc).limit(100)
+                find_without_bridge_id
               else
                 [] # Prevent nil
               end
@@ -101,7 +117,7 @@ class EventsController < ApplicationController
   end
 
   def find_event
-    Event.find_by(id: event_params[:id] || event_params[:event_id])
+    Event.includes(:bridge).where(id: event_params[:id] || event_params[:event_id], "bridges.user_id": @current_user.id).first
   end
 
   def find_bridge
