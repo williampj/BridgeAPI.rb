@@ -65,7 +65,7 @@ class EventsController < ApplicationController
   end
 
   def fetch_events
-    @events = if event_params[:bridge_id]
+    @events = if bridge_id_present
                 Event.where(bridge_id: event_params[:bridge_id]).order(completed_at: :desc).limit(100)
               elsif event_params[:event_id]
                 Event.where(bridge_id: find_event&.bridge_id).order(completed_at: :desc).limit(100)
