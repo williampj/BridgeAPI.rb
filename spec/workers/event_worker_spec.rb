@@ -69,7 +69,7 @@ RSpec.describe EventWorker, type: :worker do
 
     expect(EventWorker.jobs.count).to eq 0
     expect(event.reload.data).to eq invalid_payload.to_json
-    expect(event.reload.completed).to eq false
+    expect(event.completed).to eq false
   end
 
   it 'returns imediately when given an invalid id' do
