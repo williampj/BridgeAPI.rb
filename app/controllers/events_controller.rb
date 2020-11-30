@@ -41,7 +41,7 @@ class EventsController < ApplicationController
   # Aborts a single going event if query param `event_id` is found, otherwise, if `bridge_id` is present,
   # it aborts all ongoing events with that `bridge_id`. Returns 400 bad request if not event is found.
   def abort
-    events = if event_params[:bridge_id].nil?
+    events = if event_params[:bridge_id]
                Event.includes(:bridge)
                     .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
              else
@@ -61,30 +61,14 @@ class EventsController < ApplicationController
     params.permit(:id, :bridge_id, :event_id, :test)
   end
 
-  def find_by_bridge_id
-    Event.includes(:bridge)
-         .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id)
-         .references(:bridge)
-         .order(completed_at: :desc)
-         .limit(100)
-  end
-
-  def find_without_bridge_id
-    Event.includes(:bridge)
-         .where(bridge_id: find_event&.bridge_id, "bridges.user_id": @current_user.id)
-         .references(:bridge)
-         .order(completed_at: :desc)
-         .limit(100)
-  end
-
   def fetch_events
-    @events = if event_params[:bridge_id]
-                find_by_bridge_id
-              elsif event_params[:event_id]
-                find_without_bridge_id
-              else
-                [] # Prevent nil
-              end
+    @events = Event.includes(:bridge)
+                   .where(
+                     bridge_id: event_params[:bridge_id] || find_event&.bridge_id,
+                     "bridges.user_id": @current_user.id
+                   ).references(:bridge)
+                   .order(completed_at: :desc)
+                   .limit(100)
   end
 
   def data
