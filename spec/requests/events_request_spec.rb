@@ -113,18 +113,12 @@ RSpec.describe 'EventsController', type: :request do
       expect(EventWorker.jobs.count).to eq 0
 
       expect do
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
+        3.times do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          event_ids.push(JSON.parse(response.body)['id'])
+        end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
@@ -145,16 +139,12 @@ RSpec.describe 'EventsController', type: :request do
       expect(EventWorker.jobs.count).to eq 0
 
       expect do
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_id = JSON.parse(response.body)['id']
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
+        3.times do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          event_id = JSON.parse(response.body)['id']
+        end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
@@ -173,18 +163,12 @@ RSpec.describe 'EventsController', type: :request do
       expect(EventWorker.jobs.count).to eq 0
 
       expect do
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
+        3.times do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          event_ids.push(JSON.parse(response.body)['id'])
+        end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
@@ -206,18 +190,12 @@ RSpec.describe 'EventsController', type: :request do
       expect(EventWorker.jobs.count).to eq 0
 
       expect do
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
+        3.times do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          event_ids.push(JSON.parse(response.body)['id'])
+        end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
@@ -239,16 +217,12 @@ RSpec.describe 'EventsController', type: :request do
       expect(EventWorker.jobs.count).to eq 0
 
       expect do
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_id = JSON.parse(response.body)['id']
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
+        3.times do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          event_id = JSON.parse(response.body)['id']
+        end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
@@ -268,18 +242,12 @@ RSpec.describe 'EventsController', type: :request do
       expect(EventWorker.jobs.count).to eq 0
 
       expect do
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_ids.push(JSON.parse(response.body)['id'])
+        3.times do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          event_ids.push(JSON.parse(response.body)['id'])
+        end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
@@ -301,16 +269,12 @@ RSpec.describe 'EventsController', type: :request do
       expect(EventWorker.jobs.count).to eq 0
 
       expect do
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        event_id = JSON.parse(response.body)['id']
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
-        post "/events/#{@bridge.id}",
-             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-             headers: headers
+        3.times do
+          post "/events/#{@bridge.id}",
+               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+               headers: headers
+          event_id = JSON.parse(response.body)['id']
+        end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
