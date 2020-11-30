@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get '/', to: 'health_check#index'
 
   resource :user, except: %i[new edit]
+  post 'login', to: 'sessions#create'
 
   resources :bridges do
     patch 'activate'
@@ -19,8 +20,6 @@ Rails.application.routes.draw do
   get 'events', to: 'events#index'
   get 'events/:event_id', to: 'events#show'
   delete 'events/:event_id', to: 'events#destroy'
-
-  post 'login', to: 'sessions#create'
 
   mount Sidekiq::Web => '/sidekiq'
 end

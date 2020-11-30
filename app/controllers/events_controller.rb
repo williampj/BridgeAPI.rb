@@ -99,7 +99,7 @@ class EventsController < ApplicationController
   end
 
   def find_event
-    Event.find_by(id: event_params[:event_id])
+    Event.find_by(id: event_params[:id] || event_params[:event_id])
   end
 
   def find_bridge

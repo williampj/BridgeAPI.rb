@@ -28,13 +28,13 @@ RSpec.describe 'EventsController', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns 400 with bridge_id and user doesn\'t own event' do
+    it 'returns 400 with bridge_id when user doesn\'t own event' do
       @token = JsonWebToken.encode(user_id: User.second)
       get '/events', headers: authenticated_token, params: { bridge_id: @bridge.id }
       expect(response).to have_http_status(:not_found)
     end
 
-    it 'returns 400 with event_id and user doesn\'t own event' do
+    it 'returns 400 with event_id when user doesn\'t own event' do
       @token = JsonWebToken.encode(user_id: User.second)
       get '/events', headers: authenticated_token, params: { event_id: @event.id }
       expect(response).to have_http_status(:not_found)
@@ -61,8 +61,30 @@ RSpec.describe 'EventsController', type: :request do
 
   describe 'GET show' do
     it 'returns 200 with bridge_id' do
+      get "/events/#{@event.id}", headers: authenticated_token, params: { bridge_id: @bridge.id }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 200 with event_id' do
       get "/events/#{@event.id}", headers: authenticated_token, params: { event_id: @event.id }
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 200 with id' do
+      get "/events/#{@event.id}", headers: authenticated_token
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 400 with bridge_id when user doesn\'t own event' do
+      @token = JsonWebToken.encode(user_id: User.second)
+      get "/events/#{@event.id}", headers: authenticated_token, params: { bridge_id: @bridge.id }
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 400 with id when user doesn\'t own event' do
+      @token = JsonWebToken.encode(user_id: User.second)
+      get "/events/#{@event.id}", headers: authenticated_token
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'returns 400 with invalid IDs' do
