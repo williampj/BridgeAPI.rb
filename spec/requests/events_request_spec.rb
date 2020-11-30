@@ -53,11 +53,6 @@ RSpec.describe 'EventsController', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns 200 with id' do
-      get "/events/#{@event.id}", headers: authenticated_token
-      expect(response).to have_http_status(:ok)
-    end
-
     it 'returns 400 with invalid IDs' do
       get '/events/128371283', headers: authenticated_token, params: { event_id: '128371283' }
       expect(response).to have_http_status(400)
