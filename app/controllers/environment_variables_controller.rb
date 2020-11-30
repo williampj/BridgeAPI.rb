@@ -12,7 +12,9 @@ class EnvironmentVariablesController < ApplicationController
   protected
 
   def set_environment_variable
-    @environment_variable = EnvironmentVariable.includes(:bridge).find_by(id: params[:id])
-    render_message status: :unprocessable_entity unless @environment_variable&.bridge&.user_id == @current_user.id
+    @environment_variable = EnvironmentVariable.includes(:bridge)
+                                               .find_by(id: params[:id], "bridges.user_id": @current_user.id)
+
+    render_message status: :unprocessable_entity unless @environment_variable
   end
 end

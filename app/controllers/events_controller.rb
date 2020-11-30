@@ -1,68 +1,104 @@
 # frozen_string_literal: true
 
 class EventsController < ApplicationController
-  before_action :authorize_request
-  before_action :set_user
-  # Needs to find all events based on bridge_id or event_id
-  # Needs to return id for each event as well
-  # def index
-  #   events = @current_user.bridges
-  #   events.map! do |event|
-  #     updated_at = String(event.updated_at)
-  #     date = date_format(updated_at.split(' ')[1])
-  #     time = updated_at.split(' ')[0]
-  #     { id: 1,
-  #       time: time,
-  #       date: date,
-  #       status_code: event.status_code }
-  #   end
-  #   render json: { events: events }, status: 200 # OK
-  # end
+  before_action :authorize_request, except: :create
+  before_action :set_event, only: %i[show destroy]
 
-  def show; end
-
-  # receive bridge id + data
-  def create
-    bridge = Bridge.find(params[:id])
-    data = { inbound: request.body, outbounds: [] }
-    event = Event.new(data: data, bridge_id: bridge.id)
-    if event.save
-      # EventWorker.perform(id of event just created)
-      status 201 # Created
+  def index
+    if fetch_events.empty?
+      render json: { error: 'invalid parameters' }, status: 400 # Bad Request
     else
-      status 400 # Bad Request
+      render json: { events: @events }, status: 200
     end
+  end
+
+  def show
+    if @event
+      render json: { event: @event }, status: 200
+    else
+      render json: { error: 'an event by that id was not found' }, status: 400
+    end
+  end
+
+  def destroy
+    return render json: {}, status: 204 if @event&.destroy
+
+    render json: { error: 'an event by that id was not found' }, status: 400
+  end
+
+  def create
+    event = create_event(find_bridge)
+    if event.save
+      EventWorker.perform_async(event.id)
+      render json: {}, status: 202 # Accepted
+    else
+      render json: { error: 'Invalid parameters' }, status: 400 # Bad Request
+    end
+  rescue JSON::ParserError
+    render json: { error: 'Invalid request. Payload must be in JSON' }, status: 400 # Bad Request
   end
 
   private
 
-  def date_format(_date)
-    year = time.split('-')[0]
-    month = time.split('-')[1]
-    day = time.split('-')[2]
-    "#{year}-#{month}-#{day}"
+  def event_params
+    params.permit(:id, :bridge_id, :event_id, :test)
   end
 
-  def set_user
-    # bridge_id or #event_id
-    # => User
+  def find_by_bridge_id
+    Event.includes(:bridge)
+         .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id)
+         .references(:bridge)
+         .order(completed_at: :desc)
+         .limit(100)
+  end
+
+  def find_without_bridge_id
+    Event.includes(:bridge)
+         .where(bridge_id: find_event&.bridge_id, "bridges.user_id": @current_user.id)
+         .references(:bridge)
+         .order(completed_at: :desc)
+         .limit(100)
+  end
+
+  def fetch_events
+    @events = if event_params[:bridge_id]
+                find_by_bridge_id
+              elsif event_params[:event_id]
+                find_without_bridge_id
+              else
+                [] # Prevent nil
+              end
+  end
+
+  def data
+    {
+      'inbound' => {
+        'payload' => JSON.parse(request.body.read),
+        'dateTime' => DateTime.now.utc,
+        'ip' => request.ip,
+        'contentLength' => request.content_length
+      },
+      'outbound' => []
+    }
+  end
+
+  def create_event(bridge)
+    Event.new(
+      data: data.to_json,
+      bridge_id: bridge&.id,
+      test: event_params[:test] || false
+    )
+  end
+
+  def set_event
+    @event = find_event
+  end
+
+  def find_event
+    Event.includes(:bridge).where(id: event_params[:event_id], "bridges.user_id": @current_user.id).first
+  end
+
+  def find_bridge
+    Bridge.find_by(id: event_params[:bridge_id])
   end
 end
-
-# Step 1
-# Convert binary to jsonb
-
-# Step 2
-# payload:
-{
-  test: 'user entered string from editor',
-  production: 'user entered string from editor'
-}
-
-# Step 3
-#
-
-# NB: Need to run `bundle exec sidekiq` in separate terminal
-# localhost:3000/sidekiq to monitor sidekiq while running
-# after turning it on
-# => mount Sidekiq::Web => '/sidekiq

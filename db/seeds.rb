@@ -1,33 +1,50 @@
+# frozen_string_literal: true
+
 def test_url
-  'doggoapi.io/' + String(rand).split('.')[1]
+  "doggoapi.io/#{String(rand).split('.')[1]}"
 end
 
 user = User.create(email: 'admin@bridge.io', password: 'password', notifications: false)
 user2 = User.create(email: 'tester@bridge.io', password: 'password', notifications: false)
 
 bridge = Bridge.create(
-  user: user,
+  user_id: user.id,
   title: 'My First Bridge',
-  outbound_url: 'ip.jsontest.com',
-  method: 'POST',
+  inbound_url: 'bridgeapi.com/249634',
+  outbound_url: 'c41a7126-a18c-4af6-880e-6857771a35c8.mock.pstmn.io/success_event',
+  http_method: 'POST',
   retries: 5,
   delay: 15,
-  data: { payload: '{}', test_payload: '{}' }
+  data: {
+    payload: {
+      first_name: 'Lee',
+      last_name: 'Oswald',
+      username: 'GrassyKnoll',
+      email: 'kgb63@yandex.ru',
+      top_level_key: '$payload.top_level_key',
+      nested_key: '$payload.nested_key_1.nested_key_2'
+    }.to_json,
+    test_payload: '{"test_key_one":"testerstring","test_key_two":["stringinarray"]}'
+  }
 )
 
-bridge.environment_variables << EnvironmentVariable.create(key: 'database', value: 'a102345ij2')
+bridge.environment_variables << EnvironmentVariable.create(key: 'DATABASE_URL', value: 'a102345ij2')
 bridge.environment_variables << EnvironmentVariable.create(key: 'database_password', value: 'supersecretpasswordwow')
-bridge.headers << Header.create(key: 'X_API_KEY', value: 'ooosecrets')
-bridge.headers << Header.create(key: 'Authentication', value: 'Bearer &&&&&&&&&&&&&&&&')
+bridge.headers << Header.create(key: 'SHOULD_BE_FILTERED', value: '$env.DATABASE_URL')
+bridge.headers << Header.create(key: 'not_filtered', value: 'bridge api')
 
 bridge2 = Bridge.create(
-  user: user2,
+  user_id: user2.id,
   title: 'My Second Bridge',
+  inbound_url: 'bridgeapi.com/746353',
   outbound_url: test_url,
-  method: 'PATCH',
-  retries: 0,
+  http_method: 'PATCH',
+  retries: 3,
   delay: 0,
-  data: { payload: '{}', test_payload: '{}' }
+  data: {
+    payload: '{"FirstName":"Booths","LastName":"John","UserName":"FordTheatre","Password":{"nested":"sic temper tyrannis"},"Email":"mail@mail.com"}',
+    test_payload: '{"test_key_one":{"nested":11},"test_key_two":888}'
+  }
 )
 
 bridge2.environment_variables << EnvironmentVariable.create(key: 'database', value: 'z9992374623')

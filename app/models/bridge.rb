@@ -25,13 +25,18 @@ RETRIES ||= [
   5
 ].freeze
 
+# `data` column:
+# {
+#   "payload"      => {}
+#   "test_payload" => {}
+# }
 class Bridge < ApplicationRecord
   before_validation :set_inbound_url, on: :create
   before_validation :set_payloads, on: :create
   validates :title, presence: true
   validates :inbound_url, presence: true, uniqueness: true
   validates :outbound_url, presence: true
-  validates :method, inclusion: METHODS
+  validates :http_method, inclusion: METHODS
   validates :delay, inclusion: DELAYS
   validates :retries, inclusion: RETRIES
   validate :validate_payloads
@@ -43,9 +48,7 @@ class Bridge < ApplicationRecord
   accepts_nested_attributes_for :headers, :environment_variables
 
   def add_event_info
-    completed_at = events&.filter(&:completed_at)
-                         &.min { |a, b| b.completed_at <=> a.completed_at }
-                         &.fetch(:completed_at)
+    completed_at = events.where(completed: true)&.order(completed_at: :desc)&.first&.completed_at
     attributes.merge({ 'eventCount' => events.count, 'completedAt' => completed_at || '' })
   end
 
