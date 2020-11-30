@@ -49,11 +49,6 @@ RSpec.describe 'EventsController', type: :request do
 
   describe 'GET show' do
     it 'returns 200 with bridge_id' do
-      get "/events/#{@event.id}", headers: authenticated_token, params: { bridge_id: @bridge.id }
-      expect(response).to have_http_status(:ok)
-    end
-
-    it 'returns 200 with event_id' do
       get "/events/#{@event.id}", headers: authenticated_token, params: { event_id: @event.id }
       expect(response).to have_http_status(:ok)
     end
