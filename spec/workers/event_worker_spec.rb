@@ -4,6 +4,18 @@ require_relative './spec_helper'
 
 RSpec.describe EventWorker, type: :worker do
   let(:event) { create :event }
+  let(:invalid_payload) do
+    {
+      'inbound' => {
+        'payload' => {
+        },
+        'dateTime' => '2020-11-21T13:59:47.349Z',
+        'ip' => '0.0.0.0',
+        'contentLength' => 101
+      },
+      'outbound' => []
+    }
+  end
   # it 'Event jobs are enqueued in the scheduled queue' do
   #   described_class.perform_async
   #   assert_equal :scheduled, described_class.queue
@@ -35,22 +47,36 @@ RSpec.describe EventWorker, type: :worker do
   end
 
   it 'can retry when errors are raised' do
-    event.data = {
-      'inbound' => {
-        'payload' => {
-        },
-        'dateTime' => '2020-11-21T13:59:47.349Z',
-        'ip' => '0.0.0.0',
-        'contentLength' => 101
-      },
-      'outbound' => []
-    }.to_json
+    event.data = invalid_payload.to_json
     event.save!
 
     EventWorker.perform_async event.id
 
     expect(EventWorker.jobs.count).to eq 1
     # TODO: - Need to fix retry_count bug
+  end
+
+  it 'returns imediately when the event has been aborted' do
+    event.data = invalid_payload.to_json
+    event.save!
+
+    EventWorker.perform_async event.id
+
+    expect(EventWorker.jobs.count).to eq 1
+
+    event.update aborted: true
+    EventWorker.drain
+
+    expect(EventWorker.jobs.count).to eq 0
+    expect(event.reload.data).to eq invalid_payload.to_json
+    expect(event.reload.completed).to eq false
+  end
+
+  it 'returns imediately when given an invalid id' do
+    EventWorker.perform_async(-1)
+    EventWorker.drain
+
+    expect(EventWorker.jobs.count).to eq 0
   end
 
   it 'can clean up when errors are raised' do

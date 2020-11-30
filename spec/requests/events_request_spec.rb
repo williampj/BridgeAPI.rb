@@ -6,6 +6,8 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe 'EventsController', type: :request do
+  let(:invalid_payload) { '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }' }
+
   before do
     @event = create(:event)
     @bridge = @event.bridge
@@ -114,9 +116,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
+          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -140,9 +140,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
+          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -164,9 +162,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
+          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -191,9 +187,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
+          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -218,9 +212,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
+          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -243,9 +235,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
+          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -270,9 +260,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}",
-               params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
-               headers: headers
+          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)

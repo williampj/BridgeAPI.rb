@@ -38,6 +38,8 @@ class EventsController < ApplicationController
     render json: { error: 'Invalid request. Payload must be in JSON' }, status: 400 # Bad Request
   end
 
+  # Aborts a single going event if query param `event_id` is found, otherwise, if `bridge_id` is present,
+  # it aborts all ongoing events with that `bridge_id`. Returns 400 bad request if not event is found.
   def abort
     events = if bridge_id_present
                Event.includes(:bridge)
