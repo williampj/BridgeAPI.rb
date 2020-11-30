@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-
-Sidekiq::Testing.fake!
 
 RSpec.describe 'EventsController', type: :request do
   let(:invalid_payload) { '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }' }
