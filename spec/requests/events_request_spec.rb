@@ -166,7 +166,7 @@ RSpec.describe 'EventsController', type: :request do
       expect(@event.aborted).to eq true
     end
 
-    it 'returns 401 with bridge_id and user doesn\'t own event' do
+    it 'returns 404 with bridge_id and user doesn\'t own event' do
       event_ids = []
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -199,7 +199,40 @@ RSpec.describe 'EventsController', type: :request do
       expect(response).to have_http_status(:not_found)
     end
 
-    it 'returns 401 with event_id and user doesn\'t own event' do
+    it 'returns 404 without any id' do
+      event_ids = []
+      headers = { 'CONTENT_TYPE' => 'application/json' }
+
+      expect(EventWorker.jobs.count).to eq 0
+
+      expect do
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_ids.push(JSON.parse(response.body)['id'])
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_ids.push(JSON.parse(response.body)['id'])
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_ids.push(JSON.parse(response.body)['id'])
+      end.to change(EventWorker.jobs, :count).by(3)
+
+      expect(response).to have_http_status(202)
+      @token = JsonWebToken.encode(user_id: User.second)
+
+      post '/events/abort', headers: authenticated_token
+
+      expect(event_ids.all? do |id|
+        event = Event.find(id)
+        event.aborted == false && event.completed == false
+      end).to eq true
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 404 with event_id and user doesn\'t own event' do
       event_id = nil
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -222,6 +255,68 @@ RSpec.describe 'EventsController', type: :request do
       @token = JsonWebToken.encode(user_id: User.second)
 
       post "/events/abort?event_id=#{@event.id}", headers: authenticated_token
+
+      expect(@event.reload.completed).to eq false
+      expect(@event.aborted).to eq false
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 404 without valid bridge_id' do
+      event_ids = []
+      headers = { 'CONTENT_TYPE' => 'application/json' }
+
+      expect(EventWorker.jobs.count).to eq 0
+
+      expect do
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_ids.push(JSON.parse(response.body)['id'])
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_ids.push(JSON.parse(response.body)['id'])
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_ids.push(JSON.parse(response.body)['id'])
+      end.to change(EventWorker.jobs, :count).by(3)
+
+      expect(response).to have_http_status(202)
+      @token = JsonWebToken.encode(user_id: User.second)
+
+      post '/events/abort?bridge_id=999999', headers: authenticated_token
+
+      expect(event_ids.all? do |id|
+        event = Event.find(id)
+        event.aborted == false && event.completed == false
+      end).to eq true
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns 404 without valid event_id' do
+      event_id = nil
+      headers = { 'CONTENT_TYPE' => 'application/json' }
+
+      expect(EventWorker.jobs.count).to eq 0
+
+      expect do
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        event_id = JSON.parse(response.body)['id']
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+        post "/events/#{@bridge.id}",
+             params: '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }',
+             headers: headers
+      end.to change(EventWorker.jobs, :count).by(3)
+
+      expect(response).to have_http_status(202)
+      @token = JsonWebToken.encode(user_id: User.second)
+
+      post '/events/abort?event_id=99999', headers: authenticated_token
 
       expect(@event.reload.completed).to eq false
       expect(@event.aborted).to eq false
