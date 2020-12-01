@@ -30,12 +30,29 @@ class EventsController < ApplicationController
     event = create_event(find_bridge)
     if event.save
       EventWorker.perform_async(event.id)
-      render json: {}, status: 202 # Accepted
+      render json: { id: event.id }, status: 202 # Accepted
     else
       render json: { error: 'Invalid parameters' }, status: 400 # Bad Request
     end
   rescue JSON::ParserError
     render json: { error: 'Invalid request. Payload must be in JSON' }, status: 400 # Bad Request
+  end
+
+  # Aborts a single going event if query param `event_id` is found, otherwise, if `bridge_id` is present,
+  # it aborts all ongoing events with that `bridge_id`. Returns 400 bad request if not event is found.
+  def abort
+    events = if event_params[:bridge_id]
+               Event.includes(:bridge)
+                    .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
+             else
+               Event.includes(:bridge)
+                    .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
+             end
+
+    render_message status: 400 unless events # Bad Request
+
+    events.update aborted: true, completed: true
+    render_message
   end
 
   private
@@ -44,30 +61,14 @@ class EventsController < ApplicationController
     params.permit(:id, :bridge_id, :event_id, :test)
   end
 
-  def find_by_bridge_id
-    Event.includes(:bridge)
-         .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id)
-         .references(:bridge)
-         .order(completed_at: :desc)
-         .limit(100)
-  end
-
-  def find_without_bridge_id
-    Event.includes(:bridge)
-         .where(bridge_id: find_event&.bridge_id, "bridges.user_id": @current_user.id)
-         .references(:bridge)
-         .order(completed_at: :desc)
-         .limit(100)
-  end
-
   def fetch_events
-    @events = if event_params[:bridge_id]
-                find_by_bridge_id
-              elsif event_params[:event_id]
-                find_without_bridge_id
-              else
-                [] # Prevent nil
-              end
+    @events = Event.includes(:bridge)
+                   .where(
+                     bridge_id: event_params[:bridge_id] || find_event&.bridge_id,
+                     "bridges.user_id": @current_user.id
+                   ).references(:bridge)
+                   .order(completed_at: :desc)
+                   .limit(100)
   end
 
   def data
@@ -95,7 +96,11 @@ class EventsController < ApplicationController
   end
 
   def find_event
-    Event.includes(:bridge).where(id: event_params[:event_id], "bridges.user_id": @current_user.id).first
+    Event.includes(:bridge)
+         .where(
+           id: event_params[:id] || event_params[:event_id],
+           "bridges.user_id": @current_user.id
+         ).first
   end
 
   def find_bridge
