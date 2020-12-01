@@ -46,7 +46,7 @@ class EventsController < ApplicationController
   # it aborts all ongoing events with that `bridge_id`. Returns 400 bad request if not event is found.
   def abort
     events = events_to_abort
-    render_message status: 400 unless events # Bad Request
+    return render_message status: 400 if events.empty? # Bad Request
 
     events.update aborted: true, completed: true, completed_at: Time.now.utc
     render_message
