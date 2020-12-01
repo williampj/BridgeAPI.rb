@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class ContactUsMailer < ApplicationMailer
-  default from: 'angelbates5@yahoo.com'
+  def contact_us(full_name, email, message)
+    @full_name = full_name
+    @email = email
+    @message = message
 
-  def contact_us
-    @user = params[:user]
-    @url  = 'http://example.com/login'
-    mail(to: 'angelbates5@yahoo.com', subject: 'Welcome to My Awesome Site')
+    mail(to: 'test.bridgeapi@gmail.com', subject: 'New Message')
   end
 end

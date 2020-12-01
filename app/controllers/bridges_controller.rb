@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 class BridgesController < ApplicationController
-  # before_action :authorize_request
+  before_action :authorize_request
   before_action :set_bridge, except: %i[index create]
 
   def index
-    ContactUsMailer.with(user: User.find(1)).contact_us.deliver!
     render_message message: { bridges: Bridge.all }
   end
 

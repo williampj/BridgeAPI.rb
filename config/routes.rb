@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get '/', to: 'health_check#index'
 
   resource :user, except: %i[new edit]
+  post '/contact_us', to: 'contact_us#index'
   resources :bridges do
     patch 'activate'
     patch 'deactivate'
