@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-
-Sidekiq::Testing.fake!
-
-require 'simplecov'
-SimpleCov.start
 
 # TODO
 # RSpec::Sidekiq.configure do |config|
