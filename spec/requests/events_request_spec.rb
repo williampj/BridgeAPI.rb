@@ -11,6 +11,7 @@ RSpec.describe 'EventsController', type: :request do
     @event = create(:event)
     @bridge = @event.bridge
     @user = @bridge.user
+    @user2 = create(:user)
     @token = JsonWebToken.encode(user_id: @user.id)
 
     stub_request(:post, /.*/)
@@ -207,9 +208,9 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second.id)
+      token = JsonWebToken.encode(user_id: @user2.id)
 
-      patch "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
+      patch "/events/abort?bridge_id=#{@bridge.id}", headers: { 'BRIDGE-JWT' => token }
 
       expect(event_ids.all? do |id|
         event = Event.find(id)
@@ -258,7 +259,7 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second.id)
+      @token = JsonWebToken.encode(user_id: @user2.id)
 
       patch "/events/abort?event_id=#{@event.id}", headers: authenticated_token
 
@@ -281,7 +282,7 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second.id)
+      @token = JsonWebToken.encode(user_id: @user2.id)
 
       patch '/events/abort?bridge_id=999999', headers: authenticated_token
 
@@ -306,7 +307,7 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second.id)
+      @token = JsonWebToken.encode(user_id: @user2.id)
 
       patch '/events/abort?event_id=99999', headers: authenticated_token
 
