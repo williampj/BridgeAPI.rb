@@ -33,6 +33,7 @@ gem 'bootsnap', '>= 1.5.0', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
+  gem 'factory_bot_rails'
   gem 'pry'
   gem 'rspec-rails', '~> 4.0.1'
   gem 'rubocop'
@@ -46,7 +47,6 @@ group :development do
 end
 
 group :test do
-  gem 'factory_bot_rails'
   # Generate test coverage reports
   gem 'simplecov', require: false
   gem 'webmock'
