@@ -8,13 +8,17 @@ class EventsController < ApplicationController
     if fetch_events.empty?
       render json: { error: 'invalid parameters' }, status: 400 # Bad Request
     else
-      render json: { events: @events }, status: 200
+      render json: { events: @events.to_json(only: %i[completed completed_at id status_code]) }, status: 200
     end
   end
 
   def show
     if @event
-      render json: { event: @event }, status: 200
+      render json: {
+        event: @event,
+        bridge_title: @event.bridge.title,
+        events: fetch_events.to_json(only: %i[completed completed_at id status_code])
+      }, status: 200
     else
       render json: { error: 'an event by that id was not found' }, status: 400
     end
