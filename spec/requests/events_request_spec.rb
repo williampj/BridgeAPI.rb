@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'webmock/rspec'
+WebMock.disable_net_connect!(allow_localhost: true)
 
 RSpec.describe 'EventsController', type: :request do
   let(:invalid_payload) { '{ "top_ledvel_key": "hello", "nested_key_1": { "nested_key_2": "world" } }' }
@@ -9,6 +11,7 @@ RSpec.describe 'EventsController', type: :request do
     @event = create(:event)
     @bridge = @event.bridge
     @user = @bridge.user
+    @user2 = create(:user)
     @token = JsonWebToken.encode(user_id: @user.id)
 
     stub_request(:post, /.*/)
@@ -160,7 +163,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect(response).to have_http_status(202)
       expect do
-        post "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
+        patch "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
         EventWorker.drain
       end.to change(EventWorker.jobs, :count).by(-3)
       expect(event_ids.all? do |id|
@@ -184,14 +187,14 @@ RSpec.describe 'EventsController', type: :request do
 
       expect(response).to have_http_status(202)
       expect do
-        post "/events/abort?event_id=#{@event.id}", headers: authenticated_token
+        patch "/events/abort?event_id=#{@event.id}", headers: authenticated_token
         expect { EventWorker.drain }.to raise_error StandardError
       end.to change(EventWorker.jobs, :count).by(-1)
       expect(@event.reload.completed).to eq true
       expect(@event.aborted).to eq true
     end
 
-    it 'returns 404 with bridge_id and user doesn\'t own event' do
+    it 'returns 400 with bridge_id and user doesn\'t own event' do
       event_ids = []
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -205,18 +208,19 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second)
+      token = JsonWebToken.encode(user_id: @user2.id)
 
-      post "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
+      patch "/events/abort?bridge_id=#{@bridge.id}", headers: { 'BRIDGE-JWT' => token }
 
       expect(event_ids.all? do |id|
         event = Event.find(id)
         event.aborted == false && event.completed == false
       end).to eq true
-      expect(response).to have_http_status(:not_found)
+
+      expect(response).to have_http_status(400)
     end
 
-    it 'returns 404 without any id' do
+    it 'returns 400 without any id' do
       event_ids = []
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -238,10 +242,10 @@ RSpec.describe 'EventsController', type: :request do
         event = Event.find(id)
         event.aborted == false && event.completed == false
       end).to eq true
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(400)
     end
 
-    it 'returns 404 with event_id and user doesn\'t own event' do
+    it 'returns 400 with event_id and user doesn\'t own event' do
       event_id = nil
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -255,16 +259,16 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second)
+      @token = JsonWebToken.encode(user_id: @user2.id)
 
-      post "/events/abort?event_id=#{@event.id}", headers: authenticated_token
+      patch "/events/abort?event_id=#{@event.id}", headers: authenticated_token
 
       expect(@event.reload.completed).to eq false
       expect(@event.aborted).to eq false
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(400)
     end
 
-    it 'returns 404 without valid bridge_id' do
+    it 'returns 400 without valid bridge_id' do
       event_ids = []
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -278,18 +282,18 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second)
+      @token = JsonWebToken.encode(user_id: @user2.id)
 
-      post '/events/abort?bridge_id=999999', headers: authenticated_token
+      patch '/events/abort?bridge_id=999999', headers: authenticated_token
 
       expect(event_ids.all? do |id|
         event = Event.find(id)
         event.aborted == false && event.completed == false
       end).to eq true
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(400)
     end
 
-    it 'returns 404 without valid event_id' do
+    it 'returns 400 without valid event_id' do
       event_id = nil
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -303,13 +307,13 @@ RSpec.describe 'EventsController', type: :request do
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
-      @token = JsonWebToken.encode(user_id: User.second)
+      @token = JsonWebToken.encode(user_id: @user2.id)
 
-      post '/events/abort?event_id=99999', headers: authenticated_token
+      patch '/events/abort?event_id=99999', headers: authenticated_token
 
       expect(@event.reload.completed).to eq false
       expect(@event.aborted).to eq false
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(400)
     end
   end
 end

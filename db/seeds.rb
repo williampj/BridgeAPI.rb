@@ -60,3 +60,7 @@ Header.find_or_create_by(key: 'Authentication', value: 'Bearer *************', b
 %i[success success_with_retries failed aborted aborted_with_retries ongoing].each do |trait|
   FactoryBot.create(:seed_event, trait, bridge_id: bridge.id)
 end
+
+5.times do
+  FactoryBot.create(:seed_event, :ongoing, bridge_id: bridge.id)
+end

@@ -9,8 +9,9 @@ FactoryBot.define do
 
     trait :success do
       completed { true }
-      # TODO
-      # aborted { false }
+      aborted { false }
+      completed_at { time + 2.minute }
+      status_code { 200 }
       data do
         {
           'inbound' => {
@@ -83,7 +84,9 @@ FactoryBot.define do
 
     trait :success_with_retries do
       completed { true }
-      # aborted { false }
+      aborted { false }
+      completed_at { time + 4.minute }
+      status_code { 200 }
       data do
         {
           'inbound' => {
@@ -255,7 +258,9 @@ FactoryBot.define do
 
     trait :failed do
       completed { true }
-      # aborted { false }
+      aborted { false }
+      completed_at { time + 6.minute }
+      status_code { 500 }
       data do
         {
           'inbound' => {
@@ -427,7 +432,8 @@ FactoryBot.define do
 
     trait :ongoing do
       completed { false }
-      # aborted { true }
+      aborted { true }
+      completed_at { time + 2.minute }
       data do
         {
           'inbound' => {
@@ -449,7 +455,8 @@ FactoryBot.define do
 
     trait :aborted do
       completed { true }
-      # aborted { true }
+      aborted { true }
+      completed_at { time + 2.minute }
       data do
         {
           'inbound' => {
@@ -471,7 +478,9 @@ FactoryBot.define do
 
     trait :aborted_with_retries do
       completed { true }
-      # aborted { true }
+      aborted { true }
+      completed_at { time + 2.minute }
+      status_code { 500 }
       data do
         {
           'inbound' => {

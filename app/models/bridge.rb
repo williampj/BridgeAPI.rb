@@ -48,8 +48,13 @@ class Bridge < ApplicationRecord
   accepts_nested_attributes_for :headers, :environment_variables
 
   def add_event_info
-    completed_at = events.where(completed: true)&.order(completed_at: :desc)&.first&.completed_at
-    attributes.merge({ 'eventCount' => events.count, 'completedAt' => completed_at || '' })
+    id, completed_at = latest_event_data
+
+    attributes.merge({
+                       'eventCount' => events.count,
+                       'completedAt' => completed_at || '',
+                       'eventId' => id
+                     })
   end
 
   private
@@ -70,5 +75,13 @@ class Bridge < ApplicationRecord
 
   def set_inbound_url
     self.inbound_url = SecureRandom.hex(10)
+  end
+
+  def latest_event_data
+    events.where(completed: true)
+          .order(completed_at: :desc)
+          .limit(1)
+          .pluck(:id, :completed_at)
+          .first
   end
 end

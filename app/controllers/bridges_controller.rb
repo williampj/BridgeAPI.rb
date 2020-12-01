@@ -13,7 +13,11 @@ class BridgesController < ApplicationController
   def show
     render(
       json: { bridge: @bridge },
-      include: { headers: {}, environment_variables: { except: :value }, events: {} },
+      include: {
+        headers: {},
+        environment_variables: { except: :value },
+        events: { only: %i[completed completed_at id status_code] }
+      },
       status: :ok
     )
   end

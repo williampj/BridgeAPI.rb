@@ -8,13 +8,17 @@ class EventsController < ApplicationController
     if fetch_events.empty?
       render json: { error: 'invalid parameters' }, status: 400 # Bad Request
     else
-      render json: { events: @events }, status: 200
+      render json: { events: @events.to_json(only: %i[completed completed_at id status_code]) }, status: 200
     end
   end
 
   def show
     if @event
-      render json: { event: @event }, status: 200
+      render json: {
+        event: @event,
+        bridge_title: @event.bridge.title,
+        events: fetch_events.to_json(only: %i[completed completed_at id status_code])
+      }, status: 200
     else
       render json: { error: 'an event by that id was not found' }, status: 400
     end
@@ -41,17 +45,10 @@ class EventsController < ApplicationController
   # Aborts a single going event if query param `event_id` is found, otherwise, if `bridge_id` is present,
   # it aborts all ongoing events with that `bridge_id`. Returns 400 bad request if not event is found.
   def abort
-    events = if event_params[:bridge_id]
-               Event.includes(:bridge)
-                    .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
-             else
-               Event.includes(:bridge)
-                    .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
-             end
+    events = events_to_abort
+    return render_message status: 400 if events.empty? # Bad Request
 
-    render_message status: 400 unless events # Bad Request
-
-    events.update aborted: true, completed: true
+    events.update aborted: true, completed: true, completed_at: Time.now.utc
     render_message
   end
 
@@ -59,6 +56,16 @@ class EventsController < ApplicationController
 
   def event_params
     params.permit(:id, :bridge_id, :event_id, :test)
+  end
+
+  def events_to_abort
+    if event_params[:bridge_id]
+      Event.includes(:bridge)
+           .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
+    else
+      Event.includes(:bridge)
+           .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
+    end
   end
 
   def fetch_events
