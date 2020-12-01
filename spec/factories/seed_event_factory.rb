@@ -11,6 +11,7 @@ FactoryBot.define do
       completed { true }
       aborted { false }
       completed_at { time + 2.minute }
+      status_code { 200 }
       data do
         {
           'inbound' => {
@@ -85,6 +86,7 @@ FactoryBot.define do
       completed { true }
       aborted { false }
       completed_at { time + 4.minute }
+      status_code { 200 }
       data do
         {
           'inbound' => {
@@ -258,6 +260,7 @@ FactoryBot.define do
       completed { true }
       aborted { false }
       completed_at { time + 6.minute }
+      status_code { 500 }
       data do
         {
           'inbound' => {
@@ -477,6 +480,7 @@ FactoryBot.define do
       completed { true }
       aborted { true }
       completed_at { time + 2.minute }
+      status_code { 500 }
       data do
         {
           'inbound' => {

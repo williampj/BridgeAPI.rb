@@ -45,17 +45,10 @@ class EventsController < ApplicationController
   # Aborts a single going event if query param `event_id` is found, otherwise, if `bridge_id` is present,
   # it aborts all ongoing events with that `bridge_id`. Returns 400 bad request if not event is found.
   def abort
-    events = if event_params[:bridge_id]
-               Event.includes(:bridge)
-                    .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
-             else
-               Event.includes(:bridge)
-                    .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
-             end
-
+    events = events_to_abort
     render_message status: 400 unless events # Bad Request
 
-    events.update aborted: true, completed: true
+    events.update aborted: true, completed: true, completed_at: Time.now.utc
     render_message
   end
 
@@ -63,6 +56,16 @@ class EventsController < ApplicationController
 
   def event_params
     params.permit(:id, :bridge_id, :event_id, :test)
+  end
+
+  def events_to_abort
+    if event_params[:bridge_id]
+      Event.includes(:bridge)
+           .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
+    else
+      Event.includes(:bridge)
+           .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
+    end
   end
 
   def fetch_events

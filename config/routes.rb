@@ -15,7 +15,7 @@ Rails.application.routes.draw do
 
   resources :headers, :environment_variables, only: :destroy
 
-  post 'events/abort', to: 'events#abort'
+  patch 'events/abort', to: 'events#abort'
   post 'events/:bridge_id', to: 'events#create'
   get 'events', to: 'events#index'
   get 'events/:event_id', to: 'events#show'
