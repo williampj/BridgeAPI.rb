@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   resource :user, except: %i[new edit]
   post 'login', to: 'sessions#create'
 
-  resources :bridges do
+  resources :bridges, param: :slug do
     patch 'activate'
     patch 'deactivate'
   end

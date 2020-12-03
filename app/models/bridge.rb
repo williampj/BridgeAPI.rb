@@ -2,35 +2,35 @@
 
 require 'securerandom'
 
-METHODS ||= %w[
-  DELETE
-  GET
-  PATCH
-  POST
-  PUT
-].freeze
-
-DELAYS ||= [
-  0,
-  15,
-  30,
-  60,
-  1440
-].freeze
-
-RETRIES ||= [
-  0,
-  1,
-  3,
-  5
-].freeze
-
 # `data` column:
 # {
 #   "payload"      => {}
 #   "test_payload" => {}
 # }
 class Bridge < ApplicationRecord
+  METHODS ||= %w[
+    DELETE
+    GET
+    PATCH
+    POST
+    PUT
+  ].freeze
+
+  DELAYS ||= [
+    0,
+    15,
+    30,
+    60,
+    1440
+  ].freeze
+
+  RETRIES ||= [
+    0,
+    1,
+    3,
+    5
+  ].freeze
+
   before_validation :set_inbound_url, on: :create
   before_validation :set_payloads, on: :create
   before_validation :set_slug, on: :create

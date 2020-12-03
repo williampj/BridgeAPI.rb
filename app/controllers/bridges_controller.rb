@@ -81,7 +81,7 @@ class BridgesController < ApplicationController
       :events,
       :headers,
       :environment_variables
-    ).find_by(slug: params[:slug], user_id: @current_user.id)
+    ).find_by(slug: bridge_params[:slug], user_id: @current_user.id)
     render_message status: :unprocessable_entity unless @bridge
   end
 end
