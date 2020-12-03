@@ -27,7 +27,7 @@ class BridgesController < ApplicationController
     @bridge.user = @current_user
 
     if @bridge.save
-      render_message message: { id: @bridge.id }, status: :created
+      render_message message: { slug: @bridge.slug }, status: :created
     else
       render_message message: @bridge.errors, status: :bad_request
     end
@@ -66,7 +66,7 @@ class BridgesController < ApplicationController
       :http_method,
       :retries,
       :delay,
-      :slug, 
+      :slug,
       :outbound_url,
       :payload,
       data: %i[payload test_payload],
