@@ -33,6 +33,7 @@ RETRIES ||= [
 class Bridge < ApplicationRecord
   before_validation :set_inbound_url, on: :create
   before_validation :set_payloads, on: :create
+  before_validation :set_slug, on: :create
   validates :title, presence: true
   validates :inbound_url, presence: true, uniqueness: true
   validates :outbound_url, presence: true
@@ -61,6 +62,10 @@ class Bridge < ApplicationRecord
 
   def set_payloads
     self.data = { payload: '{}', test_payload: '{}' } if data.nil?
+  end
+
+  def set_slug
+    self.slug = SecureRandom.hex(12)
   end
 
   def validate_payloads
