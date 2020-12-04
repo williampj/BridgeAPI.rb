@@ -55,7 +55,7 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.permit(:id, :bridge_id, :event_id, :test)
+    params.permit(:id, :bridge_id, :event_id, :test, :bridge_slug)
   end
 
   def events_to_abort
@@ -111,6 +111,6 @@ class EventsController < ApplicationController
   end
 
   def find_bridge
-    Bridge.find_by(id: event_params[:bridge_id])
+    Bridge.find_by(slug: event_params[:bridge_slug])
   end
 end
