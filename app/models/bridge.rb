@@ -40,7 +40,7 @@ class Bridge < ApplicationRecord
   validates :http_method, inclusion: METHODS
   validates :delay, inclusion: DELAYS
   validates :retries, inclusion: RETRIES
-  validates :slug, length: { is: 12 }
+  validates_length_of :slug, is: 12
   validate :validate_payloads
 
   belongs_to :user
@@ -48,6 +48,7 @@ class Bridge < ApplicationRecord
   has_many :headers, dependent: :destroy
   has_many :events, dependent: :destroy
   accepts_nested_attributes_for :headers, :environment_variables
+  attr_readonly :slug
 
   def add_event_info
     id, completed_at = latest_event_data

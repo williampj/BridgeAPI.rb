@@ -44,10 +44,14 @@ RSpec.describe Bridge, type: :model do
     expect(subject).to_not be_valid
   end
 
-  # it 'is invalid without a slug' do
-  #   subject.slug = nil
-  #   expect(subject).to_not be_valid
-  # end
+  it 'slug cannot be updated after creation (fails silently)' do
+    subject.save
+    slug = subject.slug
+    new_slug = '1234567890ab'
+
+    subject.update(slug: new_slug)
+    expect(Bridge.find(subject.id).slug).to eq(slug)
+  end
 
   it 'is valid without a data property' do
     subject.data = nil
