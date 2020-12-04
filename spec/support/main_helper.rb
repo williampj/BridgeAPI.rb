@@ -28,7 +28,7 @@ module MainHelper
       outbound_url: "doggoapi.io/#{(String(rand).split '.')[1]}",
       http_method: 'POST',
       retries: 5,
-      slug: '0792a9d1a0da',
+      slug: 'b53b9c093a75df827ca08a7f5a52bc86', 
       delay: 15,
       data: { payload: '{}', test_payload: '{}' }
     }

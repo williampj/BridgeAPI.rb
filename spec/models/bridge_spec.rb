@@ -46,11 +46,12 @@ RSpec.describe Bridge, type: :model do
 
   it 'slug cannot be updated after creation (fails silently)' do
     subject.save
-    slug = subject.slug
-    new_slug = '1234567890ab'
+    slug = subject.slug # 'b53b9c093a75df827ca08a7f5a52bc86'
+    new_slug = 'fb056cbaa877ac498e351f4db4ed8081'
 
     subject.update(slug: new_slug)
-    expect(Bridge.find(subject.id).slug).to eq(slug)
+    expect(Bridge.exists?(slug: slug)).to eql(true)
+    expect(Bridge.exists?(slug: new_slug)).to eql(false)
   end
 
   it 'is valid without a data property' do
