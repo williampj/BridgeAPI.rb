@@ -20,7 +20,7 @@ class ApplicationController < ActionController::API
     decoded_token = JsonWebToken.decode(token)
     @current_user = User.find(decoded_token['user_id'])
   rescue ActiveRecord::RecordNotFound
-    Rails.logger.error ActiveSupport::LogSubscriber.new.send(:color, USER_ERROR_MSG, :red)
+    Rails.logger.error ActiveSupport::LogSubscriber.new.color(USER_ERROR_MSG, :red)
     render json: {}, status: 404 # Not Found
   rescue JWT::DecodeError
     render json: {}, status: 401 # Unauthorized

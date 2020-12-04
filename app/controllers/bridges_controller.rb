@@ -47,11 +47,13 @@ class BridgesController < ApplicationController
   end
 
   def activate
+    # binding.pry
     @bridge.update active: true
     render_message
   end
 
   def deactivate
+    # binding.pry
     @bridge.update active: false
     render_message
   end
@@ -77,11 +79,12 @@ class BridgesController < ApplicationController
   # rubocop:enable Metrics/MethodLength
 
   def set_bridge
+    # binding.pry
     @bridge = Bridge.includes(
       :events,
       :headers,
       :environment_variables
-    ).find_by(slug: bridge_params[:slug], user_id: @current_user.id)
+    ).find_by(slug: (params[:bridge_slug] || params[:slug]), user_id: @current_user.id)
     render_message status: :unprocessable_entity unless @bridge
   end
 end

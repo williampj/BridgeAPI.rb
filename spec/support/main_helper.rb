@@ -23,11 +23,12 @@ module MainHelper
 
   def bridge_hash
     {
-      user: @current_user,
+      user: @user, #@current_user,
       title: 'bridge',
       outbound_url: "doggoapi.io/#{(String(rand).split '.')[1]}",
       http_method: 'POST',
       retries: 5,
+      slug: '0792a9d1a0da457d5d664549',
       delay: 15,
       data: { payload: '{}', test_payload: '{}' }
     }

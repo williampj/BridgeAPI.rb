@@ -10,16 +10,12 @@ RSpec.describe 'BridgesController', type: :request do
     @token = JsonWebToken.encode(user_id: @user.id)
   end
 
-  it 'activates a bridge' do
-    patch bridge_activate_path(bridge.id), headers: authenticated_token
-
-    expect(bridge.reload.active).to eq true
-  end
-
-  it 'deactivates a bridge' do
-    patch bridge_deactivate_path(bridge.id), headers: authenticated_token
-
+  it 'deactivates and activates a bridge' do
+    # binding.pry
+    patch bridge_deactivate_path(bridge.slug), headers: authenticated_token
     expect(bridge.reload.active).to eq false
+    patch bridge_activate_path(bridge.slug), headers: authenticated_token
+    expect(bridge.reload.active).to eq true
   end
 
   it 'handles index method with valid user' do
@@ -51,7 +47,7 @@ RSpec.describe 'BridgesController', type: :request do
   it 'handles the show method successfully' do
     bridge.title = 'show method bridge'
     bridge.save!
-    get bridge_path(bridge.id), headers: authenticated_token
+    get bridge_path(bridge.slug), headers: authenticated_token
     expect(response.body).to include 'show method bridge'
   end
 
@@ -61,8 +57,7 @@ RSpec.describe 'BridgesController', type: :request do
     other_bridge.title = 'other\s bridge'
     other_bridge.user = @other_user
     other_bridge.save!
-
-    get bridge_path(other_bridge.id), headers: authenticated_token
+    get bridge_path(other_bridge.slug), headers: authenticated_token
 
     expect(response).to_not be_successful
 
@@ -72,7 +67,7 @@ RSpec.describe 'BridgesController', type: :request do
   it 'destroys bridges' do
     bridge.save!
 
-    delete bridge_path(bridge.id), headers: authenticated_token
+    delete bridge_path(bridge.slug), headers: authenticated_token
 
     expect(response).to be_successful
   end
@@ -83,15 +78,13 @@ RSpec.describe 'BridgesController', type: :request do
     other_bridge.title = 'other\s bridge'
     other_bridge.user = @other_user
     other_bridge.save!
-
-    delete bridge_path(other_bridge.id), headers: authenticated_token
-
+    delete bridge_path(other_bridge.slug), headers: authenticated_token
     expect(response).to_not be_successful
   end
 
   it 'creates bridges without headers or environment variables' do
     post bridges_path, params: { bridge: bridge_hash }, headers: authenticated_token
-    bridge = Bridge.find(JSON.parse(response.body)['id'])
+    bridge = Bridge.find_by(slug: JSON.parse(response.body)['slug'])
 
     expect(response).to be_successful
     expect(bridge).to be_truthy
@@ -105,7 +98,7 @@ RSpec.describe 'BridgesController', type: :request do
     creation_hash[:environment_variables_attributes] = [{ key: 'my second key', value: 'my second value' }]
 
     post bridges_path, params: { bridge: creation_hash }, headers: authenticated_token
-    bridge = Bridge.find(JSON.parse(response.body)['id'])
+    bridge = Bridge.find_by(slug: JSON.parse(response.body)['slug'])
 
     expect(response).to be_successful
     expect(bridge).to be_truthy
@@ -121,6 +114,7 @@ RSpec.describe 'BridgesController', type: :request do
 
     expect(response).to_not be_successful
   end
+
   it 'doesnt create bridge without outbound_url' do
     invalid_hash = bridge_hash
     invalid_hash[:outbound_url] = nil
@@ -129,6 +123,7 @@ RSpec.describe 'BridgesController', type: :request do
 
     expect(response).to_not be_successful
   end
+
   it 'creates bridge without data' do
     invalid_hash = bridge_hash
     invalid_hash[:data] = nil
@@ -145,6 +140,7 @@ RSpec.describe 'BridgesController', type: :request do
 
     expect(response).to_not be_successful
   end
+
   it 'doesnt create bridge without delay' do
     invalid_hash = bridge_hash
     invalid_hash[:delay] = nil
@@ -153,6 +149,7 @@ RSpec.describe 'BridgesController', type: :request do
 
     expect(response).to_not be_successful
   end
+
   it 'doesnt create bridge without retries' do
     invalid_hash = bridge_hash
     invalid_hash[:retries] = nil
@@ -165,7 +162,7 @@ RSpec.describe 'BridgesController', type: :request do
   it 'updates bridges' do
     bridge.save!
 
-    patch bridge_path(bridge.id), params: { bridge: { title: 'updated bridge ' } }, headers: authenticated_token
+    patch bridge_path(bridge.slug), params: { bridge: { title: 'updated bridge ' } }, headers: authenticated_token
 
     expect(response).to be_successful
   end
