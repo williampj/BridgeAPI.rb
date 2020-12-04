@@ -40,6 +40,7 @@ class Bridge < ApplicationRecord
   validates :http_method, inclusion: METHODS
   validates :delay, inclusion: DELAYS
   validates :retries, inclusion: RETRIES
+  validates :slug, length: { is: 12 }
   validate :validate_payloads
 
   belongs_to :user
@@ -65,7 +66,7 @@ class Bridge < ApplicationRecord
   end
 
   def set_slug
-    self.slug = SecureRandom.hex(12)
+    self.slug = SecureRandom.hex(6)
   end
 
   def validate_payloads

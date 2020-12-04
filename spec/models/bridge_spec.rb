@@ -8,7 +8,7 @@ RSpec.describe Bridge, type: :model do
   end
 
   after do
-    @current_user.destroy!
+    @user.destroy!
   end
 
   subject do
@@ -43,6 +43,11 @@ RSpec.describe Bridge, type: :model do
     subject.delay = nil
     expect(subject).to_not be_valid
   end
+
+  # it 'is invalid without a slug' do
+  #   subject.slug = nil
+  #   expect(subject).to_not be_valid
+  # end
 
   it 'is valid without a data property' do
     subject.data = nil
