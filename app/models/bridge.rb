@@ -53,11 +53,11 @@ class Bridge < ApplicationRecord
   def add_event_info
     id, completed_at = latest_event_data
 
-    attributes.merge({
+    attributes.merge!({
                        'eventCount' => events.count,
                        'completedAt' => completed_at || '',
                        'eventId' => id
-                     })
+                      })
   end
 
   private

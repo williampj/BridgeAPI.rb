@@ -12,6 +12,7 @@ class UsersController < ApplicationController
     user.save!
     token = JsonWebToken.encode({ user_id: user.id })
     render json: { user: user.safe_json, token: token }, status: 201 # Created
+    UserMailer.with(user: user).welcome_email
   rescue ActiveRecord::RecordInvalid
     render json: { error: 'email or password is invalid' }, status: 422 # Unprocessable Entity
   end
