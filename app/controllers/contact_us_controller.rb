@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ContactUsController < ApplicationController
-  def index
+  def create
     ContactUsMailer.contact_us(
       contact_us_params[:full_name],
       contact_us_params[:email],
