@@ -148,7 +148,7 @@ RSpec.describe 'EventsController', type: :request do
   end
 
   describe 'PATCH abort' do
-    it 'aborts all events with bridge_id' do
+    it 'aborts all events of a bridge with bridge_slug' do
       event_ids = []
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -163,7 +163,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect(response).to have_http_status(202)
       expect do
-        patch "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
+        patch "/events/abort?bridge_slug=#{@bridge.slug}", headers: authenticated_token
         EventWorker.drain
       end.to change(EventWorker.jobs, :count).by(-3)
       expect(event_ids.all? do |id|
