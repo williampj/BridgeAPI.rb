@@ -432,7 +432,7 @@ FactoryBot.define do
 
     trait :ongoing do
       completed { false }
-      aborted { true }
+      aborted { false }
       completed_at { time + 2.minute }
       data do
         {
