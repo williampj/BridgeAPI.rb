@@ -62,9 +62,9 @@ class EventsController < ApplicationController
   def events_to_abort
     if event_params[:bridge_slug]
       Bridge.includes(:events)
-        .find_by(slug: event_params[:bridge_slug], user_id: @current_user.id)
-        .events
-        .where(completed: false)
+            .find_by(slug: event_params[:bridge_slug], user_id: @current_user.id)
+            .events
+            .where(completed: false)
     else
       Event.includes(:bridge)
            .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
