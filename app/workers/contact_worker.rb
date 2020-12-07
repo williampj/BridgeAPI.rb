@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ContactWorker
   include Sidekiq::Worker
 
