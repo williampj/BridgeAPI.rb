@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   get '/', to: 'health_check#index'
 
   resource :user, except: %i[new edit]
+  get '/user/valid', to: 'users#valid'
   post 'login', to: 'sessions#create'
 
   resources :bridges, param: :slug do
