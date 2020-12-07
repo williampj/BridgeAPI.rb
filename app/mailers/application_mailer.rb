@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 class ApplicationMailer < ActionMailer::Base
-  default to: 'test.bridgeapi@gmail.com'
+  default from: 'bridge@bridgeapi.net'
   layout 'mailer'
 end

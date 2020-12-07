@@ -20,6 +20,7 @@ bridge = Bridge.find_or_create_by(
   http_method: 'POST',
   retries: 5,
   delay: 15,
+  slug: "e6378d63002a55bd7266a526", 
   data: {
     payload: {
       first_name: 'Lee',
@@ -46,6 +47,7 @@ bridge2 = Bridge.find_or_create_by(
   http_method: 'PATCH',
   retries: 3,
   delay: 0,
+  slug: "e0d2b8a7af45db0296316ee8", 
   data: {
     payload: '{"FirstName":"Booths","LastName":"John","UserName":"FordTheatre","Password":{"nested":"sic temper tyrannis"},"Email":"mail@mail.com"}',
     test_payload: '{"test_key_one":{"nested":11},"test_key_two":888}'

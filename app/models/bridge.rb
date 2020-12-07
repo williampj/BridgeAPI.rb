@@ -2,43 +2,45 @@
 
 require 'securerandom'
 
-METHODS ||= %w[
-  DELETE
-  GET
-  PATCH
-  POST
-  PUT
-].freeze
-
-DELAYS ||= [
-  0,
-  15,
-  30,
-  60,
-  1440
-].freeze
-
-RETRIES ||= [
-  0,
-  1,
-  3,
-  5
-].freeze
-
 # `data` column:
 # {
 #   "payload"      => {}
 #   "test_payload" => {}
 # }
 class Bridge < ApplicationRecord
+  METHODS ||= %w[
+    DELETE
+    GET
+    PATCH
+    POST
+    PUT
+  ].freeze
+
+  DELAYS ||= [
+    0,
+    15,
+    30,
+    60,
+    1440
+  ].freeze
+
+  RETRIES ||= [
+    0,
+    1,
+    3,
+    5
+  ].freeze
+
   before_validation :set_inbound_url, on: :create
   before_validation :set_payloads, on: :create
+  before_validation :set_slug, on: :create
   validates :title, presence: true
   validates :inbound_url, presence: true, uniqueness: true
   validates :outbound_url, presence: true
   validates :http_method, inclusion: METHODS
   validates :delay, inclusion: DELAYS
   validates :retries, inclusion: RETRIES
+  validates_length_of :slug, is: 32
   validate :validate_payloads
 
   belongs_to :user
@@ -46,21 +48,29 @@ class Bridge < ApplicationRecord
   has_many :headers, dependent: :destroy
   has_many :events, dependent: :destroy
   accepts_nested_attributes_for :headers, :environment_variables
+  attr_readonly :slug
 
   def add_event_info
     id, completed_at = latest_event_data
 
-    attributes.merge({
-                       'eventCount' => events.count,
-                       'completedAt' => completed_at || '',
-                       'eventId' => id
-                     })
+    attributes.merge!({
+                        'eventCount' => events.count,
+                        'completedAt' => completed_at || '',
+                        'eventId' => id
+                      })
   end
 
   private
 
   def set_payloads
     self.data = { payload: '{}', test_payload: '{}' } if data.nil?
+  end
+
+  def set_slug
+    loop do
+      self.slug = SecureRandom.hex
+      break unless Bridge.exists?(slug: slug)
+    end
   end
 
   def validate_payloads

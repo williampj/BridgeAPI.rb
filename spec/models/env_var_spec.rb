@@ -12,7 +12,7 @@ RSpec.describe EnvironmentVariable, type: :model do
   end
 
   after do
-    @current_user.destroy!
+    @user.destroy!
   end
 
   it 'belongs to bridge' do
