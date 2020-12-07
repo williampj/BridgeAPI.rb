@@ -3,6 +3,12 @@ class ContactWorker
 
   # @param [{full_name, email, message}] payload - Used to send email
   def perform(payload)
-    ContactMailer.contact_us(payload).deliver
+    binding.pry
+    ContactUsMailer.with(
+      full_name: payload['full_name'],
+      email: payload['email'],
+      message: payload['message'],
+      subject: payload['subject']
+    ).contact_us.deliver
   end
 end

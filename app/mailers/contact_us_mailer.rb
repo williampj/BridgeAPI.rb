@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 class ContactUsMailer < ApplicationMailer
-  def contact_us(full_name:, email:, message:, subject:)
-    @full_name = full_name
-    @email = email
-    @message = message
-    @subject = subject
+  before_action { @sender = params['email'] }
+  default from: @sender
 
-    mail(subject: "BRIDGEAPI - #{@subject}", from: @email)
+  def contact_us
+    @full_name = params['full_name']
+    @message = payload['message']
+    @subject = payload['subject']
+    binding.pry
+    mail subject: "BRIDGEAPI - #{@subject}"
   end
 end
+
+# reply_to: payload['email']
