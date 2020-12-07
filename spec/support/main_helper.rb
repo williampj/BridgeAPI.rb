@@ -9,8 +9,8 @@ end
 
 module MainHelper
   def create_user
-    @current_user = User.create(email: random_email, password: 'password', notifications: false)
-    @token = JsonWebToken.encode(user_id: @current_user.id)
+    @user = User.create(email: random_email, password: 'password', notifications: false)
+    @token = JsonWebToken.encode(user_id: @user.id)
   end
 
   def authenticated_token
@@ -23,11 +23,12 @@ module MainHelper
 
   def bridge_hash
     {
-      user: @current_user,
+      user: @user,
       title: 'bridge',
       outbound_url: "doggoapi.io/#{(String(rand).split '.')[1]}",
       http_method: 'POST',
       retries: 5,
+      slug: 'b53b9c093a75df827ca08a7f5a52bc86',
       delay: 15,
       data: { payload: '{}', test_payload: '{}' }
     }
