@@ -134,7 +134,7 @@ RSpec.describe 'EventsController', type: :request do
       headers = { 'CONTENT_TYPE' => 'application/json' }
       expect(EventWorker.jobs.count).to eq 0
 
-      post "/events/#{@bridge.id}", params: '{ "data": { "hello": "world" } }', headers: headers
+      post "/events/#{@bridge.slug}", params: '{ "data": { "hello": "world" } }', headers: headers
 
       expect(EventWorker.jobs.count).to eq 1
       expect(response).to have_http_status(202)
@@ -148,7 +148,7 @@ RSpec.describe 'EventsController', type: :request do
   end
 
   describe 'PATCH abort' do
-    it 'all events with bridge_id' do
+    it 'aborts all events of a bridge with bridge_slug' do
       event_ids = []
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -156,14 +156,14 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
+          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
 
       expect(response).to have_http_status(202)
       expect do
-        patch "/events/abort?bridge_id=#{@bridge.id}", headers: authenticated_token
+        patch "/events/abort?bridge_slug=#{@bridge.slug}", headers: authenticated_token
         EventWorker.drain
       end.to change(EventWorker.jobs, :count).by(-3)
       expect(event_ids.all? do |id|
@@ -172,7 +172,7 @@ RSpec.describe 'EventsController', type: :request do
       end).to eq true
     end
 
-    it 'an event with event_id' do
+    it 'aborts an event with event_id' do
       event_id = nil
       headers = { 'CONTENT_TYPE' => 'application/json' }
 
@@ -180,7 +180,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
+          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -202,7 +202,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
+          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -228,7 +228,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
+          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -253,7 +253,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
+          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -276,7 +276,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
+          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -301,7 +301,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.id}", params: invalid_payload, headers: headers
+          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)

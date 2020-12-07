@@ -17,6 +17,7 @@ class EventsController < ApplicationController
       render json: {
         event: @event,
         bridge_title: @event.bridge.title,
+        bridge_slug: @event.bridge.slug,
         events: fetch_events.to_json(only: %i[completed completed_at id status_code])
       }, status: 200
     else
@@ -55,13 +56,15 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.permit(:id, :bridge_id, :event_id, :test)
+    params.permit(:id, :bridge_id, :event_id, :test, :bridge_slug)
   end
 
   def events_to_abort
-    if event_params[:bridge_id]
-      Event.includes(:bridge)
-           .where(bridge_id: event_params[:bridge_id], "bridges.user_id": @current_user.id, completed: false)
+    if event_params[:bridge_slug]
+      Bridge.includes(:events)
+            .find_by(slug: event_params[:bridge_slug], user_id: @current_user.id)
+            .events
+            .where(completed: false)
     else
       Event.includes(:bridge)
            .where(id: event_params[:event_id], "bridges.user_id": @current_user.id, completed: false)
@@ -111,6 +114,6 @@ class EventsController < ApplicationController
   end
 
   def find_bridge
-    Bridge.find_by(id: event_params[:bridge_id])
+    Bridge.find_by(slug: event_params[:bridge_slug])
   end
 end
