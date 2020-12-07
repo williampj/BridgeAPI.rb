@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   resource :user, except: %i[new edit]
   post 'login', to: 'sessions#create'
 
-  resources :bridges do
+  resources :bridges, param: :slug do
     patch 'activate'
     patch 'deactivate'
   end
@@ -16,12 +16,12 @@ Rails.application.routes.draw do
   resources :headers, :environment_variables, only: :destroy
 
   patch 'events/abort', to: 'events#abort'
-  post 'events/:bridge_id', to: 'events#create'
+  post 'events/:bridge_slug', to: 'events#create'
   get 'events', to: 'events#index'
   get 'events/:event_id', to: 'events#show'
   delete 'events/:event_id', to: 'events#destroy'
 
-  post '/contact_us', to: 'contact_us#create'
+  post '/contact', to: 'contact_us#create'
 
   mount Sidekiq::Web => '/sidekiq'
 end

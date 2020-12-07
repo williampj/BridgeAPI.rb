@@ -9,7 +9,7 @@ RSpec.describe 'Headers', type: :request do
   end
 
   after do
-    @current_user.destroy!
+    @user.destroy!
   end
 
   subject do
