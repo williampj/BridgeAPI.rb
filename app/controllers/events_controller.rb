@@ -18,7 +18,7 @@ class EventsController < ApplicationController
         event: @event,
         bridge_title: @event.bridge.title,
         bridge_slug: @event.bridge.slug,
-        events: fetch_events.to_json(only: %i[aborted bridge_id completed completed_at id status_code])
+        events: fetch_events.to_json(only: %i[aborted completed completed_at id status_code])
       }, status: 200
     else
       render json: { error: 'an event by that id was not found' }, status: 400

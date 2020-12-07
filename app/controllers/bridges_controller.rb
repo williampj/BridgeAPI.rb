@@ -16,7 +16,7 @@ class BridgesController < ApplicationController
       include: {
         headers: {},
         environment_variables: { except: :value },
-        events: { only: %i[bridge_id completed completed_at id status_code] }
+        events: { only: %i[completed completed_at id status_code] }
       },
       status: :ok
     )
