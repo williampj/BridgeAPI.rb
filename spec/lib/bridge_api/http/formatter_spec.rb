@@ -53,9 +53,9 @@ RSpec.describe BridgeApi::Http::Formatter do
     expect(data.keys).to eq %w[inbound outbound]
     expect(data['outbound'].first.keys).to eq %w[request response]
     expect(data['outbound'].first['request'].keys).to eq %w[payload dateTime contentLength uri headers]
-    expect(data['outbound'].first['response'].keys).to eq %w[message]
     expect(data['outbound'].first['request']['payload']).to be_truthy
     expect(data['outbound'].first['request']['uri']).to eq 'http://example2.com/some_path?query=string'
-    expect(data['outbound'].first['response']).to eq({ 'message' => 'StandardError' })
+    expect(data['outbound'].first['response'].keys).to eq %w[payload dateTime contentLength uri headers]
+    expect(data['outbound'].first['response']['payload']).to eq('StandardError')
   end
 end
