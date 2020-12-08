@@ -105,4 +105,13 @@ module MainHelper
       message: 'Bonjour dear WAA team. The future belongs to you!'
     }
   end
+
+  def worker_contact_payload
+    {
+      'full_name' => 'Alexis de Tocqueville',
+      'email' => 'comte@senat.fr',
+      'subject' => 'Democracy in America',
+      'message' => 'Bonjour dear WAA team. The future belongs to you!'
+    }
+  end
 end
