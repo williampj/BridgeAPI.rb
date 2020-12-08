@@ -55,10 +55,15 @@ module BridgeApi
       def format_error!(event, req, error)
         data = JSON.parse(event.data)
 
-        data['outbound'].push({
-                                'request' => formatted_request(req),
-                                'response' => formatted_error(error)
-                              })
+        if error.instance_of?(InvalidEnvironmentVariable) || error.instance_of?(InvalidPayloadKey)
+          data['outbound'].push({ 'request' => formatted_unprocessable_request(error) })
+        else
+          data['outbound'].push({
+                                  'request' => formatted_request(req),
+                                  'response' => formatted_error(req, error)
+                                })
+        end
+
         event.data = data.to_json
       end
 
@@ -88,7 +93,7 @@ module BridgeApi
       # @return [Hash(Symbol, To many unions)]
       def formatted_request(request)
         {
-          payload: JSON.parse(request.body),
+          payload: JSON.parse(request&.body || 'Unparsable'),
           dateTime: DateTime.now.utc,
           contentLength: request['content-length'],
           uri: request.uri.to_s,
@@ -99,8 +104,14 @@ module BridgeApi
       # @param [StandardError] error
       #
       # @return [Hash(Symbol, String)]
-      def formatted_error(error)
-        { message: error.message }
+      def formatted_error(request, error)
+        {
+          payload: error.message,
+          dateTime: DateTime.now.utc,
+          contentLength: 0,
+          uri: request&.uri&.to_s,
+          headers: []
+        }
       end
 
       # Handles creating an Array of all request headers
@@ -118,6 +129,22 @@ module BridgeApi
         end
 
         headers
+      end
+
+      # Formats the unprocessable request.
+      #
+      # @param [Net::HTTPResponse] req
+      # @param [StandardError] error
+      #
+      # @return [Hash(Symbol, String)]
+      def formatted_unprocessable_request(error)
+        {
+          payload: error.message,
+          dateTime: DateTime.now.utc,
+          contentLength: 0,
+          uri: '',
+          headers: []
+        }
       end
     end
   end
