@@ -22,5 +22,7 @@ Rails.application.routes.draw do
   get 'events/:event_id', to: 'events#show'
   delete 'events/:event_id', to: 'events#destroy'
 
+  post '/contact', to: 'contact#create'
+
   mount Sidekiq::Web => '/sidekiq'
 end

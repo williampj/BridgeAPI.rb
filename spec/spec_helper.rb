@@ -115,4 +115,5 @@ SimpleCov.start do
   add_group 'Request Handling', 'app/lib/bridge_api/http'
   add_group 'Syntax Parser', 'app/lib/bridge_api/syntax_parser'
   add_group 'Workers', 'app/workers'
+  add_group 'Mailers', 'app/mailers'
 end

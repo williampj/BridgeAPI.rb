@@ -96,4 +96,13 @@ module MainHelper
   def destroy_event
     @event.destroy!
   end
+
+  def contact_payload
+    {
+      full_name: 'Alexis de Tocqueville',
+      email: 'comte@senat.fr',
+      subject: 'App appreciation',
+      message: 'Bonjour dear WAA team. The future belongs to you!'
+    }
+  end
 end
