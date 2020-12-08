@@ -20,4 +20,6 @@ class ContactController < ApplicationController
       'subject' => contact_params[:subject]
     }
   end
+
+  # TODO: Backend validations? (contact model?)
 end

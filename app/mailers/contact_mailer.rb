@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class ContactMailer < ApplicationMailer
-  def contact
-    @full_name = params[:full_name]
-    @message = params[:message]
-    @subject = params[:subject]
-    @sender = params[:email]
+  def contact(payload)
+    @full_name = payload['full_name']
+    @message = payload['message']
+    @subject = payload['subject']
+    @sender = payload['email']
 
     mail subject: @subject, reply_to: @sender
   end

@@ -11,7 +11,6 @@ RSpec.describe 'BridgesController', type: :request do
   end
 
   it 'deactivates and activates a bridge' do
-    # binding.pry
     patch bridge_deactivate_path(bridge.slug), headers: authenticated_token
     expect(bridge.reload.active).to eq false
     patch bridge_activate_path(bridge.slug), headers: authenticated_token
