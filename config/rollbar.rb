@@ -7,7 +7,7 @@ Rollbar.configure do |config|
   config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
 
   config.environment = Rails.env
-  
+
   # We only use Rollbar in production:
   config.enabled = Rails.env.production?
 
@@ -63,5 +63,4 @@ Rollbar.configure do |config|
   #   user: 'username_if_auth_required',
   #   password: 'password_if_auth_required'
   # }
-
 end
