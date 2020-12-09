@@ -2,11 +2,9 @@
 
 # Load the Rails application.
 require_relative 'application'
-# For Rollbar monitoring of the Rails boot process
 require_relative 'rollbar'
 
-ENV['ENCRYPTION_SERVICE_SALT'] = Rails.application.credentials[:ENCRYPTION_SERVICE_SALT]
-
+# For Rollbar monitoring of the Rails boot process
 notify = lambda do |e|
   Rollbar.with_config(use_async: false) do
     Rollbar.error(e)
