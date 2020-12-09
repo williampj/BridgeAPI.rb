@@ -19,6 +19,7 @@ gem 'redis', '~> 4.0'
 gem 'bcrypt', '~> 3.1.7'
 gem 'jwt'
 gem 'rack-cors'
+gem 'rollbar'
 gem 'sidekiq'
 
 # Use Active Storage variant
