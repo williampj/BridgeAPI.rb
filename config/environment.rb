@@ -5,9 +5,6 @@ require_relative 'application'
 # For Rollbar monitoring of the Rails boot process
 require_relative 'rollbar'
 
-# Initialize the Rails application.
-Rails.application.initialize!
-
 ENV['ENCRYPTION_SERVICE_SALT'] = Rails.application.credentials[:ENCRYPTION_SERVICE_SALT]
 
 notify = lambda do |e|
@@ -21,6 +18,7 @@ end
 
 # rubocop:disable Lint/RescueException
 begin
+  # Initialize the Rails application.
   Rails.application.initialize!
 rescue Exception => e
   notify.call(e)
