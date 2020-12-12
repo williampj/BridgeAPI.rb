@@ -1,22 +1,15 @@
 # frozen_string_literal: true
 
-require 'rollbar/logger'
-
-class NoRollbarToken < StandardError
-end
-
-raise NoRollbarToken if Rails.env == 'production' && !ENV['ROLLBAR_ACCESS_TOKEN']
-
-Rails.logger.extend(ActiveSupport::Logger.broadcast(Rollbar::Logger.new))
-
 Rollbar.configure do |config|
   # Without configuration, Rollbar is enabled in all environments.
   # To disable in specific environments, set config.enabled=false.
 
-  config.access_token = ENV['ROLLBAR_SECRET']
+  config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
 
-  # Here we'll disable in 'test':
-  config.enabled = false if Rails.env.test? || Rails.env.development?
+  config.environment = Rails.env
+
+  # We only use Rollbar in production:
+  config.enabled = Rails.env.production?
 
   # By default, Rollbar will try to call the `current_user` controller method
   # to fetch the logged-in user object, and then call that object's `id`
@@ -70,11 +63,4 @@ Rollbar.configure do |config|
   #   user: 'username_if_auth_required',
   #   password: 'password_if_auth_required'
   # }
-
-  # If you run your staging application instance in production environment then
-  # you'll want to override the environment reported by `Rails.env` with an
-  # environment variable like this: `ROLLBAR_ENV=staging`. This is a recommended
-  # setup for Heroku. See:
-  # https://devcenter.heroku.com/articles/deploying-to-a-custom-rails-environment
-  config.environment = ENV['ROLLBAR_ENV'].presence || Rails.env
 end
