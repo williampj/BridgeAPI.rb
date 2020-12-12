@@ -7,12 +7,22 @@ RSpec.describe Bridge, type: :model do
     create_user
   end
 
-  after do
-    @user.destroy!
-  end
-
   subject do
     create_bridge
+  end
+
+  it 'add event info returns the proper information' do
+    event = create :event
+    event.completed = true
+    event.completed_at = DateTime.now.utc
+    subject.save!
+    subject.events << event
+    subject_with_event_info = subject.add_event_info
+
+    expect(subject_with_event_info['eventCount']).to eq 1
+    expect(subject_with_event_info['completedAt']).to eq event.completed_at
+    expect(subject_with_event_info['eventId']).to eq event.id
+    expect(subject_with_event_info['latestRequest']).to eq event.created_at
   end
 
   it 'is valid when passed valid info' do
