@@ -20,7 +20,7 @@ RSpec.describe Bridge, type: :model do
     subject_with_event_info = subject.add_event_info
 
     expect(subject_with_event_info['eventCount']).to eq 1
-    expect(subject_with_event_info['completedAt']).to eq event.completed_at
+    expect(subject_with_event_info['completedAt'].to_date).to eq event.completed_at.to_date
     expect(subject_with_event_info['eventId']).to eq event.id
     expect(subject_with_event_info['latestRequest'].to_date).to eq event.created_at.to_date
   end
