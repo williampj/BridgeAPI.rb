@@ -22,7 +22,7 @@ RSpec.describe Bridge, type: :model do
     expect(subject_with_event_info['eventCount']).to eq 1
     expect(subject_with_event_info['completedAt']).to eq event.completed_at
     expect(subject_with_event_info['eventId']).to eq event.id
-    expect(subject_with_event_info['latestRequest']).to eq event.created_at
+    expect(subject_with_event_info['latestRequest'].to_i).to eq event.created_at.to_i
   end
 
   it 'is valid when passed valid info' do
