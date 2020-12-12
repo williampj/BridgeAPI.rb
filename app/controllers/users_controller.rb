@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class UsersController < ApplicationController
-  before_action :authorize_request, only: %i[show destroy update]
+  before_action :authorize_request, only: %i[show destroy update valid]
 
   def show
     render json: { user: @current_user.safe_json }, status: 200
@@ -28,6 +28,12 @@ class UsersController < ApplicationController
     else
       render json: {}, status: 400 # Bad Request
     end
+  end
+
+  # Goes through authorize_request, if it makes it this far,
+  # the users token is valid.
+  def valid
+    render json: {}, status: 200
   end
 
   private

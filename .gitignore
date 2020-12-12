@@ -33,5 +33,5 @@
 # Ignore simplecov files
 /coverage/*
 
-# Ignore .env 
-/.env
+# Ignore env file
+*.env

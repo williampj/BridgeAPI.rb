@@ -103,4 +103,14 @@ RSpec.describe 'Users', type: :request do
 
     expect(response).to have_http_status 200
   end
+
+  it 'valid action returns 200 ok if user is valid' do
+    get user_valid_path, headers: authenticated_token
+    expect(response).to have_http_status 200
+  end
+
+  it 'valid action returns 401 unauthorized response if user is not valid' do
+    get user_valid_path
+    expect(response).to have_http_status 401
+  end
 end

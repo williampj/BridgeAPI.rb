@@ -154,6 +154,7 @@ GEM
     redis (4.2.2)
     regexp_parser (1.8.2)
     rexml (3.2.4)
+    rollbar (3.1.1)
     rspec-core (3.10.0)
       rspec-support (~> 3.10.0)
     rspec-expectations (3.10.0)
@@ -233,6 +234,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 6.0.3, >= 6.0.3.4)
   redis (~> 4.0)
+  rollbar
   rspec-rails (~> 4.0.1)
   rubocop
   sidekiq
