@@ -134,7 +134,7 @@ RSpec.describe 'EventsController', type: :request do
       headers = { 'CONTENT_TYPE' => 'application/json' }
       expect(EventWorker.jobs.count).to eq 0
 
-      post "/events/#{@bridge.slug}", params: '{ "data": { "hello": "world" } }', headers: headers
+      post "/#{@bridge.slug}", params: '{ "data": { "hello": "world" } }', headers: headers
 
       expect(EventWorker.jobs.count).to eq 1
       expect(response).to have_http_status(202)
@@ -142,7 +142,7 @@ RSpec.describe 'EventsController', type: :request do
 
     it 'returns 400 with invalid IDs' do
       headers = { 'CONTENT_TYPE' => 'application/json' }
-      post '/events/128371283', params: '{ "data": { "hello": "world" } }', headers: headers
+      post '/128371283', params: '{ "data": { "hello": "world" } }', headers: headers
       expect(response).to have_http_status(400)
     end
   end
@@ -156,7 +156,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
+          post "/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -180,7 +180,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
+          post "/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -202,7 +202,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
+          post "/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -228,7 +228,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
+          post "/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -236,7 +236,7 @@ RSpec.describe 'EventsController', type: :request do
       expect(response).to have_http_status(202)
       @token = JsonWebToken.encode(user_id: User.second)
 
-      post '/events/abort', headers: authenticated_token
+      post '/abort', headers: authenticated_token
 
       expect(event_ids.all? do |id|
         event = Event.find(id)
@@ -253,7 +253,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
+          post "/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -276,7 +276,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
+          post "/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_ids.push(JSON.parse(response.body)['id'])
         end
       end.to change(EventWorker.jobs, :count).by(3)
@@ -301,7 +301,7 @@ RSpec.describe 'EventsController', type: :request do
 
       expect do
         3.times do
-          post "/events/#{@bridge.slug}", params: invalid_payload, headers: headers
+          post "/#{@bridge.slug}", params: invalid_payload, headers: headers
           event_id = JSON.parse(response.body)['id']
         end
       end.to change(EventWorker.jobs, :count).by(3)
