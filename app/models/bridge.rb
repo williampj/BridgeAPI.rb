@@ -51,12 +51,12 @@ class Bridge < ApplicationRecord
   attr_readonly :slug
 
   def add_event_info
-    id, completed_at = latest_event_data
-
+    id, completed_at, created_at = latest_event_data
     attributes.merge!({
                         'eventCount' => events.count,
                         'completedAt' => completed_at || '',
-                        'eventId' => id
+                        'eventId' => id,
+                        'latestRequest' => created_at
                       })
   end
 
@@ -91,7 +91,7 @@ class Bridge < ApplicationRecord
     events.where(completed: true)
           .order(completed_at: :desc)
           .limit(1)
-          .pluck(:id, :completed_at)
+          .pluck(:id, :completed_at, :created_at)
           .first
   end
 end
